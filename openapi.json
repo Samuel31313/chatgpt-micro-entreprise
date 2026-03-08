@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://YOUR-DOMAIN.com",
+      "url": "https://chatgpt-micro-entreprise-production.up.railway.app",
       "description": "Production server"
     }
   ],
