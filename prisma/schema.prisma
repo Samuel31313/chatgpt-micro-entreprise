@@ -1,0 +1,60 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Dossier {
+  id        String   @id @default(cuid())
+  sessionId String   @unique // ChatGPT conversation identifier
+
+  // Identité
+  firstName    String?
+  lastName     String?
+  dateOfBirth  String? // YYYY-MM-DD
+  placeOfBirth String?
+  nationality  String?
+
+  // Activité
+  activityType   String? // commercial | artisanal | liberal
+  activityDesc   String?
+  nafCode        String?
+  enterpriseAddr String?
+
+  // Options
+  acreOption   Boolean @default(false)
+  versementLib Boolean @default(false)
+
+  // Paiement
+  stripeSessionId     String? @unique
+  stripePaymentStatus String? // pending | paid | failed
+  amountCents         Int?
+
+  // INPI
+  inpiFormaliteId String? @unique
+  inpiStatus      String? // draft | submitted | processing | accepted | rejected
+  siretNumber     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  documents Document[]
+}
+
+model Document {
+  id        String  @id @default(cuid())
+  dossierId String
+  dossier   Dossier @relation(fields: [dossierId], references: [id])
+
+  type           String  // id_document | domicile_proof | non_condamnation
+  filePath       String?
+  mimeType       String?
+  fileName       String?
+  status         String  @default("pending") // pending | valid | invalid
+  validationNote String?
+
+  createdAt DateTime @default(now())
+}
