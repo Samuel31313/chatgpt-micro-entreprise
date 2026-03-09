@@ -1,32 +1,32 @@
 {
-  "openapi": "3.1.0",
+  "openapi": "3.0.0",
   "info": {
     "title": "Créer ma Micro-Entreprise API",
-    "description": "API backend pour le GPT de création de micro-entreprise en France. Gère les dossiers, documents, paiements et soumissions INPI.",
+    "description": "API backend pour le GPT de création de micro-entreprise en France.",
     "version": "1.0.0"
   },
   "servers": [
     {
-      "url": "https://chatgpt-micro-entreprise-production.up.railway.app",
-      "description": "Production server"
+      "url": "https://chatgpt-micro-entreprise-production.up.railway.app"
     }
   ],
   "paths": {
     "/api/dossier": {
       "post": {
         "operationId": "saveDossier",
-        "summary": "Sauvegarder ou mettre à jour un dossier de création",
-        "description": "Crée ou met à jour un dossier avec les informations de l'utilisateur. Utilise session_id pour lier à la conversation ChatGPT. Appelle cette action à chaque étape pour sauvegarder les données au fur et à mesure.",
+        "summary": "Sauvegarder ou mettre à jour un dossier",
+        "description": "Crée ou met à jour un dossier avec les informations collectées.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
+                "required": ["session_id"],
                 "properties": {
                   "session_id": {
                     "type": "string",
-                    "description": "Identifiant unique de la conversation ChatGPT. Génère un UUID si c'est la première fois."
+                    "description": "Identifiant unique de la conversation ChatGPT"
                   },
                   "first_name": {
                     "type": "string",
@@ -34,19 +34,19 @@
                   },
                   "last_name": {
                     "type": "string",
-                    "description": "Nom de famille du créateur"
+                    "description": "Nom de famille"
                   },
                   "date_of_birth": {
                     "type": "string",
-                    "description": "Date de naissance au format YYYY-MM-DD"
+                    "description": "Date de naissance YYYY-MM-DD"
                   },
                   "place_of_birth": {
                     "type": "string",
-                    "description": "Lieu de naissance (ville, pays si hors France)"
+                    "description": "Lieu de naissance"
                   },
                   "nationality": {
                     "type": "string",
-                    "description": "Nationalité (ex: francaise, italienne)"
+                    "description": "Nationalité"
                   },
                   "activity_type": {
                     "type": "string",
@@ -55,26 +55,25 @@
                   },
                   "activity_desc": {
                     "type": "string",
-                    "description": "Description détaillée de l'activité"
+                    "description": "Description de l'activité"
                   },
                   "naf_code": {
                     "type": "string",
-                    "description": "Code APE/NAF de l'activité (ex: 6201Z)"
+                    "description": "Code APE/NAF"
                   },
                   "enterprise_addr": {
                     "type": "string",
-                    "description": "Adresse de domiciliation de l'entreprise"
+                    "description": "Adresse de domiciliation"
                   },
                   "acre_option": {
                     "type": "boolean",
-                    "description": "Demande l'ACRE (exonération de charges)"
+                    "description": "Option ACRE"
                   },
                   "versement_lib": {
                     "type": "boolean",
-                    "description": "Option versement libératoire de l'IR"
+                    "description": "Option versement libératoire"
                   }
-                },
-                "required": ["session_id"]
+                }
               }
             }
           }
@@ -102,7 +101,7 @@
     "/api/dossier/{sessionId}": {
       "get": {
         "operationId": "getDossier",
-        "summary": "Récupérer les détails d'un dossier",
+        "summary": "Récupérer un dossier",
         "description": "Récupère toutes les informations d'un dossier existant.",
         "parameters": [
           {
@@ -110,12 +109,23 @@
             "in": "path",
             "required": true,
             "schema": { "type": "string" },
-            "description": "Identifiant de session ChatGPT"
+            "description": "Identifiant de session"
           }
         ],
         "responses": {
           "200": {
-            "description": "Détails du dossier"
+            "description": "Détails du dossier",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "dossier": { "type": "object" }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -123,20 +133,31 @@
     "/api/dossier/{sessionId}/summary": {
       "get": {
         "operationId": "getDossierSummary",
-        "summary": "Obtenir le récapitulatif du dossier",
-        "description": "Retourne un récapitulatif formaté du dossier avec le statut de complétion. Utilise cette action avant le paiement pour afficher le récapitulatif à l'utilisateur.",
+        "summary": "Récapitulatif du dossier",
+        "description": "Retourne un récapitulatif du dossier avant paiement.",
         "parameters": [
           {
             "name": "sessionId",
             "in": "path",
             "required": true,
             "schema": { "type": "string" },
-            "description": "Identifiant de session ChatGPT"
+            "description": "Identifiant de session"
           }
         ],
         "responses": {
           "200": {
-            "description": "Récapitulatif du dossier"
+            "description": "Récapitulatif",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "summary": { "type": "string" }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -145,19 +166,19 @@
       "get": {
         "operationId": "searchNafCode",
         "summary": "Rechercher un code APE/NAF",
-        "description": "Recherche les codes APE/NAF correspondant à une activité. Utilise cette action quand l'utilisateur décrit son activité pour trouver le code adapté.",
+        "description": "Recherche les codes NAF pour une activité donnée.",
         "parameters": [
           {
             "name": "q",
             "in": "query",
             "required": true,
             "schema": { "type": "string" },
-            "description": "Mots-clés de recherche (ex: 'informatique', 'plombier', 'e-commerce')"
+            "description": "Mots-clés de recherche"
           }
         ],
         "responses": {
           "200": {
-            "description": "Résultats de recherche NAF",
+            "description": "Résultats",
             "content": {
               "application/json": {
                 "schema": {
@@ -171,12 +192,10 @@
                         "type": "object",
                         "properties": {
                           "code": { "type": "string" },
-                          "label": { "type": "string" },
-                          "category": { "type": "string" }
+                          "label": { "type": "string" }
                         }
                       }
-                    },
-                    "message": { "type": "string" }
+                    }
                   }
                 }
               }
@@ -188,30 +207,30 @@
     "/api/document/validate-url": {
       "post": {
         "operationId": "validateDocument",
-        "summary": "Valider un document depuis une URL",
-        "description": "Télécharge et valide un document (pièce d'identité, justificatif de domicile, attestation de non-condamnation) en utilisant l'IA. Quand l'utilisateur uploade un fichier dans ChatGPT, utilise l'URL du fichier avec cette action.",
+        "summary": "Valider un document",
+        "description": "Valide un document uploadé via son URL.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
+                "required": ["session_id", "document_type", "file_url"],
                 "properties": {
                   "session_id": {
                     "type": "string",
-                    "description": "Identifiant de session ChatGPT"
+                    "description": "Identifiant de session"
                   },
                   "document_type": {
                     "type": "string",
                     "enum": ["id_document", "domicile_proof", "non_condamnation"],
-                    "description": "Type de document : id_document (pièce d'identité), domicile_proof (justificatif de domicile), non_condamnation (attestation)"
+                    "description": "Type de document"
                   },
                   "file_url": {
                     "type": "string",
-                    "description": "URL du fichier à valider"
+                    "description": "URL du fichier"
                   }
-                },
-                "required": ["session_id", "document_type", "file_url"]
+                }
               }
             }
           }
@@ -231,7 +250,6 @@
                       "type": "array",
                       "items": { "type": "string" }
                     },
-                    "extracted_data": { "type": "object" },
                     "message": { "type": "string" }
                   }
                 }
@@ -244,28 +262,28 @@
     "/api/payment/create": {
       "post": {
         "operationId": "createPayment",
-        "summary": "Créer un lien de paiement Stripe",
-        "description": "Génère un lien de paiement Stripe pour le dossier. Vérifie que tous les documents sont validés avant. Envoie le lien à l'utilisateur pour qu'il puisse payer.",
+        "summary": "Créer un lien de paiement",
+        "description": "Génère un lien de paiement Stripe pour le dossier.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
+                "required": ["session_id"],
                 "properties": {
                   "session_id": {
                     "type": "string",
-                    "description": "Identifiant de session ChatGPT"
+                    "description": "Identifiant de session"
                   }
-                },
-                "required": ["session_id"]
+                }
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Lien de paiement créé",
+            "description": "Lien de paiement",
             "content": {
               "application/json": {
                 "schema": {
@@ -287,19 +305,31 @@
       "get": {
         "operationId": "checkPaymentStatus",
         "summary": "Vérifier le statut du paiement",
-        "description": "Vérifie si l'utilisateur a complété le paiement Stripe. Appelle cette action après avoir envoyé le lien de paiement pour vérifier le statut.",
+        "description": "Vérifie si le paiement Stripe a été complété.",
         "parameters": [
           {
             "name": "sessionId",
             "in": "path",
             "required": true,
             "schema": { "type": "string" },
-            "description": "Identifiant de session ChatGPT"
+            "description": "Identifiant de session"
           }
         ],
         "responses": {
           "200": {
-            "description": "Statut du paiement"
+            "description": "Statut du paiement",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "payment_status": { "type": "string" },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -308,27 +338,39 @@
       "post": {
         "operationId": "submitToInpi",
         "summary": "Soumettre le dossier à l'INPI",
-        "description": "Soumet le dossier complet au Guichet Unique de l'INPI pour la création de la micro-entreprise. Le paiement doit avoir été effectué avant.",
+        "description": "Soumet le dossier au Guichet Unique INPI après paiement.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
+                "required": ["session_id"],
                 "properties": {
                   "session_id": {
                     "type": "string",
-                    "description": "Identifiant de session ChatGPT"
+                    "description": "Identifiant de session"
                   }
-                },
-                "required": ["session_id"]
+                }
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Résultat de soumission"
+            "description": "Résultat de soumission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "formalite_id": { "type": "string" },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -337,36 +379,35 @@
       "get": {
         "operationId": "checkInpiStatus",
         "summary": "Vérifier le statut INPI",
-        "description": "Vérifie le statut de la soumission INPI et récupère le numéro SIRET quand disponible. L'utilisateur peut appeler cette action à tout moment pour suivre son dossier.",
+        "description": "Vérifie le statut de la soumission INPI et récupère le SIRET.",
         "parameters": [
           {
             "name": "sessionId",
             "in": "path",
             "required": true,
             "schema": { "type": "string" },
-            "description": "Identifiant de session ChatGPT"
+            "description": "Identifiant de session"
           }
         ],
         "responses": {
           "200": {
-            "description": "Statut INPI"
+            "description": "Statut INPI",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "inpi_status": { "type": "string" },
+                    "siret": { "type": "string" },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
           }
         }
       }
     }
-  },
-  "components": {
-    "securitySchemes": {
-      "BearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "description": "Clé API pour authentifier les requêtes du GPT"
-      }
-    }
-  },
-  "security": [
-    {
-      "BearerAuth": []
-    }
-  ]
+  }
 }
