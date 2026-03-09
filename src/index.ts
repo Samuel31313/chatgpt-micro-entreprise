@@ -66,6 +66,53 @@ app.get("/payment-success", (_req, res) => {
   `);
 });
 
+// Privacy policy (required for public GPT with Actions)
+app.get("/privacy", (_req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head><meta charset="utf-8"><title>Politique de confidentialité — Créer ma Micro-Entreprise</title></head>
+    <body style="font-family:system-ui;max-width:700px;margin:40px auto;padding:0 20px;line-height:1.6">
+      <h1>Politique de confidentialité</h1>
+      <p><strong>Service :</strong> Créer ma Micro-Entreprise (GPT ChatGPT)</p>
+      <p><strong>Dernière mise à jour :</strong> 8 mars 2026</p>
+
+      <h2>Données collectées</h2>
+      <p>Ce service collecte les informations nécessaires à la création de votre micro-entreprise en France :</p>
+      <ul>
+        <li>Identité (nom, prénom, date et lieu de naissance, nationalité)</li>
+        <li>Adresse de domiciliation de l'entreprise</li>
+        <li>Description de l'activité professionnelle</li>
+        <li>Documents justificatifs (pièce d'identité, justificatif de domicile, attestation)</li>
+        <li>Options fiscales choisies (ACRE, versement libératoire)</li>
+      </ul>
+
+      <h2>Utilisation des données</h2>
+      <p>Vos données sont utilisées exclusivement pour :</p>
+      <ul>
+        <li>Constituer votre dossier de création de micro-entreprise</li>
+        <li>Soumettre votre déclaration au Guichet Unique de l'INPI</li>
+        <li>Traiter votre paiement via Stripe</li>
+      </ul>
+
+      <h2>Partage des données</h2>
+      <p>Vos données sont transmises uniquement à :</p>
+      <ul>
+        <li><strong>INPI</strong> — pour l'immatriculation de votre entreprise</li>
+        <li><strong>Stripe</strong> — pour le traitement sécurisé du paiement</li>
+      </ul>
+      <p>Aucune donnée n'est vendue ni partagée à des tiers à des fins commerciales.</p>
+
+      <h2>Conservation</h2>
+      <p>Vos données sont conservées pendant la durée nécessaire au traitement de votre dossier, puis supprimées sous 12 mois après finalisation.</p>
+
+      <h2>Contact</h2>
+      <p>Pour toute question relative à vos données personnelles, contactez-nous à l'adresse indiquée sur la page du GPT.</p>
+    </body>
+    </html>
+  `);
+});
+
 app.get("/payment-cancel", (_req, res) => {
   res.send(`
     <!DOCTYPE html>
