@@ -1,4 +1,5 @@
 import { Router, Request, Response } from "express";
+import axios from "axios";
 
 const router = Router();
 
@@ -21,43 +22,30 @@ router.post("/checkout", async (req: Request, res: Response) => {
 
   try {
     // Call LegalPlace API to create a real SASU instance
-    const response = await fetch(
+    const { data } = await axios.post(
       `${LEGALPLACE_API}/wizard/instance/creation-sasu/`,
       {
-        method: "POST",
+        app_type: "wizardx",
+        instanceDomain: "www.legalplace.fr",
+        draft: 1,
+        email: email.trim(),
+        metadata: {
+          checkout: "packs-v16",
+          checkoutSlug: "creation-sasu",
+        },
+        ovc: {
+          o: {},
+          v: {},
+        },
+      },
+      {
         headers: {
           "Content-Type": "application/json",
           "lp-referrer": "https://www.legalplace.fr/",
-          "lp-origin":
-            "https://www.legalplace.fr/projet/creation-sasu-wf",
+          "lp-origin": "https://www.legalplace.fr/projet/creation-sasu-wf",
         },
-        body: JSON.stringify({
-          app_type: "wizardx",
-          instanceDomain: "www.legalplace.fr",
-          draft: 1,
-          email: email.trim(),
-          metadata: {
-            checkout: "packs-v16",
-            checkoutSlug: "creation-sasu",
-          },
-          ovc: {
-            o: {},
-            v: {},
-          },
-        }),
       }
     );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      res.status(502).json({
-        success: false,
-        error: `Erreur LegalPlace (${response.status}): ${errorText}`,
-      });
-      return;
-    }
-
-    const data = await response.json();
 
     if (data.status !== "SUCCESS" || !data.uniqid) {
       res.status(502).json({
@@ -79,9 +67,12 @@ router.post("/checkout", async (req: Request, res: Response) => {
         "Voici le lien de checkout LegalPlace pour la création de votre SASU. Choisissez votre pack et finalisez le paiement.",
     });
   } catch (error: any) {
+    const errMsg = error.response
+      ? `LegalPlace (${error.response.status}): ${JSON.stringify(error.response.data)}`
+      : error.message;
     res.status(500).json({
       success: false,
-      error: `Erreur lors de la création de l'instance SASU: ${error.message}`,
+      error: `Erreur lors de la création de l'instance SASU: ${errMsg}`,
     });
   }
 });
