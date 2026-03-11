@@ -1,27 +1,14 @@
 import { Router, Request, Response } from "express";
-import crypto from "crypto";
 
 const router = Router();
 
-/**
- * Generate a 15-character alphanumeric lowercase uniqid
- * (matches LegalPlace's format)
- */
-function generateUniqid(): string {
-  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-  const bytes = crypto.randomBytes(15);
-  let result = "";
-  for (let i = 0; i < 15; i++) {
-    result += chars[bytes[i] % chars.length];
-  }
-  return result;
-}
+const LEGALPLACE_API = "https://clear-api.legalplace.fr/api/v1";
 
 /**
  * POST /api/sasu/checkout
- * Generates a LegalPlace checkout URL for SASU creation.
+ * Creates a real LegalPlace SASU instance and returns the checkout URL.
  */
-router.post("/checkout", (req: Request, res: Response) => {
+router.post("/checkout", async (req: Request, res: Response) => {
   const { email, phone, company_name, activity } = req.body;
 
   if (!email) {
@@ -32,18 +19,71 @@ router.post("/checkout", (req: Request, res: Response) => {
     return;
   }
 
-  const uniqid = generateUniqid();
-  const encodedEmail = encodeURIComponent(email);
-  const checkoutUrl = `https://www.legalplace.fr/creation/checkout/creation-sasu/packs-v16?email=${encodedEmail}&uniqid=${uniqid}&product=creation-sasu`;
+  try {
+    // Call LegalPlace API to create a real SASU instance
+    const response = await fetch(
+      `${LEGALPLACE_API}/wizard/instance/creation-sasu/`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "lp-referrer": "https://www.legalplace.fr/",
+          "lp-origin":
+            "https://www.legalplace.fr/projet/creation-sasu-wf",
+        },
+        body: JSON.stringify({
+          app_type: "wizardx",
+          instanceDomain: "www.legalplace.fr",
+          draft: 1,
+          email: email.trim(),
+          metadata: {
+            checkout: "packs-v16",
+            checkoutSlug: "creation-sasu",
+          },
+          ovc: {
+            o: {},
+            v: {},
+          },
+        }),
+      }
+    );
 
-  res.json({
-    success: true,
-    checkout_url: checkoutUrl,
-    uniqid,
-    email,
-    message:
-      "Voici le lien de checkout LegalPlace pour la création de votre SASU. Choisissez votre pack et finalisez le paiement.",
-  });
+    if (!response.ok) {
+      const errorText = await response.text();
+      res.status(502).json({
+        success: false,
+        error: `Erreur LegalPlace (${response.status}): ${errorText}`,
+      });
+      return;
+    }
+
+    const data = await response.json();
+
+    if (data.status !== "SUCCESS" || !data.uniqid) {
+      res.status(502).json({
+        success: false,
+        error: "LegalPlace n'a pas retourné d'identifiant d'instance.",
+      });
+      return;
+    }
+
+    const encodedEmail = encodeURIComponent(email.trim());
+    const checkoutUrl = `https://www.legalplace.fr/creation/checkout/creation-sasu/packs-v16?email=${encodedEmail}&uniqid=${data.uniqid}&product=creation-sasu`;
+
+    res.json({
+      success: true,
+      checkout_url: checkoutUrl,
+      uniqid: data.uniqid,
+      email: email.trim(),
+      message:
+        "Voici le lien de checkout LegalPlace pour la création de votre SASU. Choisissez votre pack et finalisez le paiement.",
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: `Erreur lors de la création de l'instance SASU: ${error.message}`,
+    });
+  }
 });
 
 export default router;
