@@ -565,6 +565,69 @@
           }
         }
       }
+    },
+    "/api/micro-entreprise/checkout": {
+      "post": {
+        "operationId": "generateMicroEntrepriseCheckout",
+        "summary": "Générer un lien checkout micro-entreprise LegalPlace",
+        "description": "Génère un lien de checkout LegalPlace pour la création d'une micro-entreprise. Prend l'email du client et retourne l'URL de checkout avec les packs disponibles.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "description": "Email du client pour la création de micro-entreprise"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "description": "Numéro de téléphone du client"
+                  },
+                  "activity": {
+                    "type": "string",
+                    "description": "Description de l'activité de la micro-entreprise"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lien de checkout généré",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "checkout_url": {
+                      "type": "string"
+                    },
+                    "uniqid": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
