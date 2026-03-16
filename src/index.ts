@@ -8,6 +8,7 @@ import paymentRoutes from "./routes/payment.routes";
 import inpiRoutes from "./routes/inpi.routes";
 import nafRoutes from "./routes/naf.routes";
 import sasuRoutes from "./routes/sasu.routes";
+import microEntrepriseRoutes from "./routes/micro-entreprise.routes";
 import stripeWebhookRoutes from "./routes/stripe.webhook";
 
 const app = express();
@@ -53,6 +54,7 @@ app.use("/api/payment", authenticateGPT, paymentRoutes);
 app.use("/api/inpi", authenticateGPT, inpiRoutes);
 app.use("/api/naf", authenticateGPT, nafRoutes);
 app.use("/api/sasu", authenticateGPT, sasuRoutes);
+app.use("/api/micro-entreprise", authenticateGPT, microEntrepriseRoutes);
 
 // Payment success/cancel pages
 app.get("/payment-success", (_req, res) => {
