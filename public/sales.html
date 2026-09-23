@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Custom Checkout Sales</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--brand:#3b5bdb;--brand-text:#fff;--ok:#0f9d58;--ok-bg:#e6f4ea;--warn:#b45309;--warn-bg:#fef3c7;--err:#b91c1c;--input:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1115;--card:#171a21;--text:#e5e7eb;--muted:#9ca3af;--line:#2a2f3a;--brand:#748ffc;--brand-text:#0f1115;--ok:#34d399;--ok-bg:#12291f;--warn:#fbbf24;--warn-bg:#3a2e12;--err:#f87171;--input:#0f1115}}
+:root[data-theme="dark"]{--bg:#0f1115;--card:#171a21;--text:#e5e7eb;--muted:#9ca3af;--line:#2a2f3a;--brand:#748ffc;--brand-text:#0f1115;--ok:#34d399;--ok-bg:#12291f;--warn:#fbbf24;--warn-bg:#3a2e12;--err:#f87171;--input:#0f1115}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{padding:20px 16px 0;max-width:1180px;margin:0 auto}
+h1{font-size:22px;margin:0}h2{font-size:15px;margin:0 0 12px}
+.muted{color:var(--muted)}
+.grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px;max-width:1180px;margin:0 auto;padding:16px}
+@media (max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:10px}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+input,select,textarea{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--input);color:var(--text);font:inherit}
+textarea{min-height:64px;resize:vertical}
+.check{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--text)}
+.check input{width:auto}
+.section-toggle{display:flex;justify-content:space-between;align-items:center}
+button{background:var(--brand);color:var(--brand-text);border:0;border-radius:8px;padding:10px 14px;font:inherit;font-weight:600;cursor:pointer}
+button.alt{background:transparent;color:var(--brand);border:1px solid var(--brand)}
+button:disabled{opacity:.5;cursor:not-allowed}
+table{width:100%;border-collapse:collapse}td{padding:7px 0;border-bottom:1px solid var(--line);vertical-align:top}td.r{text-align:right;white-space:nowrap}
+.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:99px;background:var(--warn-bg);color:var(--warn)}
+.alert{padding:10px 12px;border-radius:8px;margin-top:10px}
+.alert.warn{background:var(--warn-bg);color:var(--warn)}.alert.ok{background:var(--ok-bg);color:var(--ok)}.alert.err{color:var(--err);border:1px solid var(--err)}
+.total{display:flex;justify-content:space-between;font-weight:700;font-size:16px;margin-top:10px}
+.hint{font-size:12px;color:var(--muted);margin:4px 0 0}
+.url{word-break:break-all;font-family:ui-monospace,monospace;font-size:12px}
+.sticky{position:sticky;top:16px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Custom checkout</h1>
+  <p class="muted" style="margin:4px 0 0">Comptabilité &amp; compte pro pour sociétés existantes — offre personnalisée + liens de paiement Chargebee.</p>
+</header>
+
+<div class="grid">
+  <div>
+    <div class="card">
+      <h2>Vous</h2>
+      <div class="row">
+        <div><label>Clé sales</label><input id="apiKey" type="password" autocomplete="off"></div>
+        <div><label>Votre email</label><input id="salesEmail" type="email"></div>
+        <div><label>Votre nom (affiché au client)</label><input id="salesName"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Client</h2>
+      <div class="row">
+        <div><label>Email *</label><input id="cEmail" type="email"></div>
+        <div><label>Prénom</label><input id="cFirst"></div>
+        <div><label>Nom</label><input id="cLast"></div>
+      </div>
+      <div class="row">
+        <div><label>Téléphone</label><input id="cPhone"></div>
+        <div><label>Société</label><input id="cCompany"></div>
+        <div><label>SIREN</label><input id="cSiren"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-toggle"><h2>Comptabilité</h2><label class="check"><input type="checkbox" id="accOn" checked> Inclure</label></div>
+      <div id="accFields">
+        <div class="row">
+          <div><label>Pack</label><select id="accPack"><option value="essentiel">Essentiel</option><option value="elite">Elite (+40 €/mois)</option></select></div>
+          <div><label>Secteur</label><select id="accSector"></select></div>
+          <div><label>Fréquence</label><select id="accFreq"><option value="yearly">Annuelle (10 mois)</option><option value="monthly">Mensuelle</option></select></div>
+        </div>
+        <div class="row">
+          <div><label>TVA</label><select id="accVat"><option value="none">Franchise / aucune</option><option value="quarterly">Trimestrielle (+10 €)</option><option value="monthly">Mensuelle (+20 €)</option></select></div>
+          <div><label>Salariés (bulletins / mois)</label><input id="accEmployees" type="number" min="0" value="0"></div>
+          <div style="display:flex;gap:14px;align-items:end;padding-bottom:8px"><label class="check"><input type="checkbox" id="accOss"> OSS</label><label class="check"><input type="checkbox" id="accIoss"> IOSS</label></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-toggle"><h2>Compte pro LP Pro</h2><label class="check"><input type="checkbox" id="bankOn" checked> Inclure</label></div>
+      <div id="bankFields" class="row">
+        <div><label>Pack</label><select id="bankPack"><option value="basique">Basique</option><option value="premium">Premium</option><option value="ultime">Ultime</option></select></div>
+        <div><label>Fréquence</label><select id="bankFreq"><option value="yearly">Annuelle</option><option value="monthly">Mensuelle (+79 € d'ouverture)</option></select></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Marge de manœuvre</h2>
+      <div class="row">
+        <div><label>Remise compta (%)</label><input id="dPct" type="number" min="0" max="100" value="0"><p class="hint">Annuel uniquement, max 10 % pour s'aligner sur un concurrent.</p></div>
+        <div><label>Frais d'ouverture compte pro (€ HT)</label><input id="dOpening" type="number" min="0" step="0.5" placeholder="79"><p class="hint">Mensuel : jusqu'à 39,50 €.</p></div>
+      </div>
+      <div style="margin-bottom:10px"><label>Justification remise (devis / lettre de mission concurrent)</label><textarea id="dJustif"></textarea></div>
+      <label class="check"><input type="checkbox" id="dFreeYear"> 1 an de compte pro Basique offert <span class="muted">(si compta annuelle)</span></label>
+    </div>
+
+    <div class="card">
+      <h2>Mot au client</h2>
+      <textarea id="message" placeholder="Suite à notre échange, voici l'offre que je vous ai préparée…"></textarea>
+    </div>
+  </div>
+
+  <div>
+    <div class="sticky">
+      <div class="card">
+        <h2>Récapitulatif</h2>
+        <div id="recap" class="muted">Renseignez votre clé sales pour calculer l'offre.</div>
+        <div style="display:flex;gap:8px;margin-top:14px">
+          <button id="createBtn" disabled>Créer l'offre</button>
+        </div>
+        <div id="result"></div>
+      </div>
+      <div class="card">
+        <div class="section-toggle"><h2>Mes offres</h2><button class="alt" id="refreshBtn">Actualiser</button></div>
+        <div id="offers" class="muted">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var eur = function (n) { return n.toLocaleString("fr-FR", { style: "currency", currency: "EUR" }); };
+  var esc = function (s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; };
+  var FREQ = { monthly: "/mois", yearly: "/an", one_time: "une fois" };
+  var role = null;
+
+  function store(kind, key, val) { try { window[kind].setItem(key, val); } catch (e) {} }
+  function load(kind, key) { try { return window[kind].getItem(key) || ""; } catch (e) { return ""; } }
+
+  $("apiKey").value = load("sessionStorage", "cc_key");
+  $("salesEmail").value = load("localStorage", "cc_email");
+  $("salesName").value = load("localStorage", "cc_name");
+
+  function api(method, path, body) {
+    return fetch(path, {
+      method: method,
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + $("apiKey").value.trim() },
+      body: body ? JSON.stringify(body) : undefined
+    }).then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || r.statusText); return j; }); });
+  }
+
+  function selection() {
+    var s = {};
+    if ($("accOn").checked) {
+      s.accounting = {
+        pack: $("accPack").value, sector: $("accSector").value, frequency: $("accFreq").value,
+        vat: $("accVat").value, oss: $("accOss").checked, ioss: $("accIoss").checked,
+        employees: parseInt($("accEmployees").value || "0", 10)
+      };
+    }
+    if ($("bankOn").checked) s.bank = { pack: $("bankPack").value, frequency: $("bankFreq").value };
+    var d = {};
+    var pct = parseFloat($("dPct").value || "0");
+    if (pct > 0) { d.accountingPct = pct; d.accountingJustification = $("dJustif").value; }
+    if ($("dFreeYear").checked) d.bankFreeYear = true;
+    if ($("dOpening").value !== "") d.bankOpeningFee = parseFloat($("dOpening").value);
+    if (Object.keys(d).length) s.discounts = d;
+    return s;
+  }
+
+  function renderQuote(q, needsApproval) {
+    var rows = q.lines.map(function (l) {
+      return "<tr><td>" + esc(l.label) + (l.discount ? "<br><span class='tag'>" + esc(l.discount.label) + "</span>" : "") +
+        (l.chargebeeItemPriceId ? "" : "<br><span class='tag'>pas d'item Chargebee</span>") +
+        "</td><td class='r'>" + eur(l.firstInvoiceHt) + " <span class='muted'>" + FREQ[l.frequency] + "</span></td></tr>";
+    }).join("");
+    var html = "<table>" + rows + "</table>" +
+      "<div class='total'><span>1re échéance</span><span>" + eur(q.totals.firstInvoiceHt) + " HT</span></div>" +
+      "<p class='hint' style='text-align:right'>" + eur(q.totals.firstInvoiceTtc) + " TTC · 1re année " + eur(q.totals.firstYearHt) + " HT · " + eur(q.totals.monthlyEquivalentHt) + " HT/mois équivalent</p>";
+    if (q.guardrailViolations.length) {
+      html += "<div class='alert warn'><strong>" + (role === "manager" ? "Hors marges (vous êtes manager, l'offre sera validée)" : "Validation manager requise") + "</strong><br>" + q.guardrailViolations.map(esc).join("<br>") + "</div>";
+    }
+    if (q.warnings.length) html += "<div class='alert warn'>" + q.warnings.map(esc).join("<br>") + "</div>";
+    return html;
+  }
+
+  var timer = null;
+  function refreshQuote() {
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      var s = selection();
+      if (!s.accounting && !s.bank) { $("recap").innerHTML = "Sélectionnez au moins un produit."; $("createBtn").disabled = true; return; }
+      api("POST", "/api/sales/quote", { selection: s }).then(function (r) {
+        $("recap").innerHTML = renderQuote(r.quote, r.requires_manager_approval);
+        $("recap").classList.remove("muted");
+        $("createBtn").disabled = false;
+      }).catch(function (e) { $("recap").innerHTML = "<div class='alert err'>" + esc(e.message) + "</div>"; $("createBtn").disabled = true; });
+    }, 250);
+  }
+
+  function loadOffers() {
+    var email = $("salesEmail").value.trim();
+    var q = role === "manager" ? "?status=pending_approval" : (email ? "?sales_email=" + encodeURIComponent(email) : "");
+    api("GET", "/api/sales/offers" + q).then(function (r) {
+      if (!r.offers.length) { $("offers").innerHTML = role === "manager" ? "Aucune offre à valider." : "Aucune offre."; return; }
+      $("offers").classList.remove("muted");
+      $("offers").innerHTML = "<table>" + r.offers.map(function (o) {
+        var actions = role === "manager" && o.status === "pending_approval"
+          ? " <button class='alt' data-approve='" + esc(o.slug) + "'>Valider</button> <button class='alt' data-reject='" + esc(o.slug) + "'>Refuser</button>" : "";
+        return "<tr><td><a href='" + esc(o.offer_url) + "' target='_blank' rel='noopener'>" + esc(o.company || o.customer) + "</a><br><span class='muted'>" +
+          esc(o.status) + " · " + esc(o.sales) + (o.violations.length ? " · " + esc(o.violations.join(" ")) : "") + "</span>" + actions +
+          "</td><td class='r'>" + eur(o.first_year_ht) + "<br><span class='muted'>1re année HT</span></td></tr>";
+      }).join("") + "</table>";
+    }).catch(function (e) { $("offers").innerHTML = "<div class='alert err'>" + esc(e.message) + "</div>"; });
+  }
+
+  $("offers").addEventListener("click", function (ev) {
+    var slug = ev.target.getAttribute("data-approve") || ev.target.getAttribute("data-reject");
+    if (!slug) return;
+    var decision = ev.target.hasAttribute("data-reject") ? "reject" : "approve";
+    api("POST", "/api/sales/offers/" + encodeURIComponent(slug) + "/approve", { decision: decision, manager_email: $("salesEmail").value })
+      .then(loadOffers).catch(function (e) { alert(e.message); });
+  });
+
+  function init() {
+    store("sessionStorage", "cc_key", $("apiKey").value.trim());
+    if (!$("apiKey").value.trim()) return;
+    api("GET", "/api/sales/pricing").then(function (r) {
+      role = r.role;
+      var current = $("accSector").value || "base";
+      $("accSector").innerHTML = r.pricing.accounting.sectors.map(function (s) {
+        return "<option value='" + esc(s.key) + "'>" + esc(s.label) + " — " + s.essentiel.monthly + " €</option>";
+      }).join("");
+      $("accSector").value = current;
+      refreshQuote();
+      loadOffers();
+    }).catch(function (e) { $("recap").innerHTML = "<div class='alert err'>" + esc(e.message) + "</div>"; });
+  }
+
+  $("createBtn").addEventListener("click", function () {
+    if (!$("salesEmail").value.trim() || !$("cEmail").value.trim()) { alert("Votre email et l'email client sont requis."); return; }
+    $("createBtn").disabled = true;
+    api("POST", "/api/sales/offers", {
+      sales_email: $("salesEmail").value.trim(), sales_name: $("salesName").value.trim(),
+      customer: { email: $("cEmail").value.trim(), first_name: $("cFirst").value.trim(), last_name: $("cLast").value.trim(),
+        phone: $("cPhone").value.trim(), company_name: $("cCompany").value.trim(), siren: $("cSiren").value.trim() },
+      selection: selection(), message: $("message").value
+    }).then(function (r) {
+      var mail = "mailto:" + encodeURIComponent($("cEmail").value.trim()) + "?subject=" + encodeURIComponent("Votre offre LegalPlace") +
+        "&body=" + encodeURIComponent(($("message").value || "Bonjour,\n\nVoici l'offre que je vous ai préparée :") + "\n\n" + r.offer_url);
+      $("result").innerHTML = "<div class='alert " + (r.status === "sent" ? "ok" : "warn") + "'>" + esc(r.message) +
+        "<p class='url'>" + esc(r.offer_url) + "</p><button class='alt' id='copyBtn'>Copier le lien</button> <a href='" + mail + "'>Envoyer par email</a></div>";
+      $("copyBtn").addEventListener("click", function () { navigator.clipboard.writeText(r.offer_url); });
+      loadOffers();
+    }).catch(function (e) { $("result").innerHTML = "<div class='alert err'>" + esc(e.message) + "</div>"; })
+      .finally(function () { $("createBtn").disabled = false; });
+  });
+
+  $("apiKey").addEventListener("change", init);
+  $("salesEmail").addEventListener("change", function () { store("localStorage", "cc_email", $("salesEmail").value.trim()); loadOffers(); });
+  $("salesName").addEventListener("change", function () { store("localStorage", "cc_name", $("salesName").value.trim()); });
+  $("refreshBtn").addEventListener("click", loadOffers);
+  ["accOn", "bankOn"].forEach(function (id) {
+    $(id).addEventListener("change", function () {
+      $(id === "accOn" ? "accFields" : "bankFields").style.display = $(id).checked ? "" : "none";
+    });
+  });
+  document.querySelectorAll("input,select,textarea").forEach(function (el) {
+    if (["apiKey", "salesEmail", "salesName", "message"].indexOf(el.id) === -1 && el.id.indexOf("c") !== 0) {
+      el.addEventListener("input", refreshQuote);
+      el.addEventListener("change", refreshQuote);
+    }
+  });
+  init();
+})();
+</script>
+</body>
+</html>

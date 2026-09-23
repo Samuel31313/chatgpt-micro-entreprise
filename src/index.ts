@@ -10,6 +10,9 @@ import nafRoutes from "./routes/naf.routes";
 import sasuRoutes from "./routes/sasu.routes";
 import microEntrepriseRoutes from "./routes/micro-entreprise.routes";
 import stripeWebhookRoutes from "./routes/stripe.webhook";
+import offersRoutes from "./routes/offers.routes";
+import salesRoutes, { authenticateSales } from "./routes/sales.routes";
+import pagesRoutes from "./routes/pages.routes";
 
 const app = express();
 
@@ -55,6 +58,13 @@ app.use("/api/inpi", authenticateGPT, inpiRoutes);
 app.use("/api/naf", authenticateGPT, nafRoutes);
 app.use("/api/sasu", authenticateGPT, sasuRoutes);
 app.use("/api/micro-entreprise", authenticateGPT, microEntrepriseRoutes);
+app.use("/api/offers", authenticateGPT, offersRoutes);
+
+// Outil sales (custom checkout) — authentifié par SALES_API_KEY / SALES_MANAGER_API_KEY
+app.use("/api/sales", authenticateSales, salesRoutes);
+
+// Pages publiques : offre client (/offre/:slug), paiement, outil sales (/sales)
+app.use(pagesRoutes);
 
 // Payment success/cancel pages
 app.get("/payment-success", (_req, res) => {

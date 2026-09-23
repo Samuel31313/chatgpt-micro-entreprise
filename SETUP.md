@@ -253,3 +253,33 @@ Modifiez `STRIPE_PRICE_CENTS` dans votre `.env`. Par défaut : `6900` (= 69 €)
 ### Comment passer en production INPI ?
 
 Changez `INPI_ENV=production` dans votre `.env`. Utilisez d'abord `INPI_ENV=demo` pour tester.
+
+## Souscription comptabilité & compte pro (sociétés existantes)
+
+### Parcours GPT (Option 4)
+
+1. `qualifyCompany` : la société existe-t-elle ? Sinon → redirection vers les parcours de création (Options 1/2/3 ou lien LegalPlace).
+2. Questions de qualification → `route` :
+   - `self_checkout` : devis au prix grille (`quote`) puis `generateAccountingBankCheckout` → **un lien Chargebee par abonnement** (compta sur `lp-so-compta`, compte pro sur le site LP Pro).
+   - `sales_meeting` : SCI, micro/EI/association, activité à vérifier, CA > 1 M€, > 10 salariés, bilan en retard, reprise avec salariés, client anglophone → lien Calendly pré-rempli.
+3. Chaque qualification avec email est enregistrée dans la table `Lead`.
+
+La grille (`src/data/pricing.ts`) reprend le référentiel Notion *« [Tarif] Offre tarifaire : référentiel ComptaPlace & LegalPlace »* et la FAQ LP Pro.
+
+### Liens de paiement Chargebee
+
+| Mode | Quand | Ce qui est possible |
+|---|---|---|
+| **API** (`CHARGEBEE_*_API_KEY` renseignée) | Recommandé | Prix sectoriels (override de prix : activer *Allow price override* sur le site) et remises (`discounts[]`) |
+| **URL** (pas de clé) | Par défaut | Uniquement les offres au prix catalogue Chargebee (secteur *Base*, sans remise) |
+| **Fallback** | Site ou item_price non configuré | Compte pro → `LPPRO_SIGNUP_URL` ; compta → pas de lien, le GPT propose le RDV |
+
+### Outil sales : custom checkout (`/sales`)
+
+- Ouvrir `https://votre-domaine.com/sales`, saisir la clé `SALES_API_KEY` (ou `SALES_MANAGER_API_KEY`).
+- Composer l'offre (compta, compte pro, options, remises) : le récapitulatif se recalcule en direct et signale tout écart aux marges de manœuvre :
+  - remise compta ≤ 10 % en annuel uniquement, avec justification (devis concurrent) ; aucune en mensuel ;
+  - 1 an de compte pro Basique offert uniquement si compta **annuelle** ;
+  - frais d'ouverture compte pro (mensuel) jusqu'à 39,50 €.
+- Hors marges → l'offre passe en `pending_approval` : le client voit l'offre mais ne peut pas payer tant qu'un manager ne l'a pas validée (liste « Mes offres » avec la clé manager).
+- Le client reçoit `https://votre-domaine.com/offre/<id>` : récapitulatif, un bouton de paiement par abonnement (la hosted page Chargebee est générée au clic), bouton de reprise de RDV. Validité : 15 jours.

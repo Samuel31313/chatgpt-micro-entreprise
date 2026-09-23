@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Assistant Juridique API",
-    "description": "API backend pour le GPT assistant juridique : micro-entreprise, choix de statut, et SASU.",
-    "version": "2.0.0"
+    "description": "API backend pour le GPT assistant juridique : micro-entreprise, choix de statut, SASU, et souscription comptabilité / compte pro pour les sociétés existantes.",
+    "version": "2.1.0"
   },
   "servers": [
     {
@@ -619,6 +619,566 @@
                       "type": "string"
                     },
                     "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/offers/pricing": {
+      "get": {
+        "operationId": "getAccountingBankPricing",
+        "summary": "Grille tarifaire comptabilité et compte pro",
+        "description": "Retourne la grille LegalPlace HT : comptabilité (Essentiel / Elite par secteur, mensuel / annuel, options) et compte pro LP Pro (Basique / Premium / Ultime).",
+        "responses": {
+          "200": {
+            "description": "Grille tarifaire",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "pricing": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/offers/qualify": {
+      "post": {
+        "operationId": "qualifyCompany",
+        "summary": "Qualifier un prospect compta / compte pro",
+        "description": "À appeler une fois les questions de qualification posées. Retourne route = creation (rediriger vers la création LegalPlace), self_checkout (devis + selection à passer à generateAccountingBankCheckout) ou sales_meeting (proposer le RDV via sales_meeting_url).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "answers"
+                ],
+                "properties": {
+                  "contact": {
+                    "type": "object",
+                    "properties": {
+                      "email": {
+                        "type": "string"
+                      },
+                      "phone": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "company_name": {
+                        "type": "string"
+                      },
+                      "siren": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "answers": {
+                    "type": "object",
+                    "required": [
+                      "company_status"
+                    ],
+                    "properties": {
+                      "company_status": {
+                        "type": "string",
+                        "enum": [
+                          "registered",
+                          "in_progress",
+                          "not_created"
+                        ],
+                        "description": "Société immatriculée, en cours de création, ou pas encore créée"
+                      },
+                      "legal_form": {
+                        "type": "string",
+                        "enum": [
+                          "sasu",
+                          "sas",
+                          "eurl",
+                          "sarl",
+                          "sci",
+                          "micro",
+                          "ei",
+                          "association",
+                          "autre"
+                        ]
+                      },
+                      "needs": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "accounting",
+                            "bank"
+                          ]
+                        }
+                      },
+                      "sector": {
+                        "type": "string",
+                        "enum": [
+                          "base",
+                          "independant",
+                          "btp",
+                          "diagnostic_immo",
+                          "commerce",
+                          "ecommerce",
+                          "restauration",
+                          "transport_vtc",
+                          "autre"
+                        ]
+                      },
+                      "activity": {
+                        "type": "string"
+                      },
+                      "annual_revenue": {
+                        "type": "number",
+                        "description": "CA annuel HT en euros"
+                      },
+                      "employees": {
+                        "type": "integer"
+                      },
+                      "vat_regime": {
+                        "type": "string",
+                        "enum": [
+                          "franchise",
+                          "quarterly",
+                          "monthly",
+                          "unknown"
+                        ]
+                      },
+                      "eu_sales": {
+                        "type": "boolean",
+                        "description": "Ventes à distance vers des particuliers UE (OSS)"
+                      },
+                      "eu_imports": {
+                        "type": "boolean",
+                        "description": "Import de biens < 150 € vendus en UE (IOSS)"
+                      },
+                      "accounting_situation": {
+                        "type": "string",
+                        "enum": [
+                          "no_accountant",
+                          "new_fiscal_year",
+                          "switching_accountant",
+                          "late_closing"
+                        ]
+                      },
+                      "english_speaking": {
+                        "type": "boolean"
+                      },
+                      "wants_dedicated_accountant": {
+                        "type": "boolean"
+                      },
+                      "preferred_frequency": {
+                        "type": "string",
+                        "enum": [
+                          "monthly",
+                          "yearly"
+                        ]
+                      },
+                      "bank_users": {
+                        "type": "integer"
+                      },
+                      "bank_cards": {
+                        "type": "integer"
+                      },
+                      "transfers_per_month": {
+                        "type": "integer"
+                      },
+                      "needs_invoicing": {
+                        "type": "boolean"
+                      },
+                      "wants_call": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Résultat de qualification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "route": {
+                      "type": "string",
+                      "enum": [
+                        "creation",
+                        "self_checkout",
+                        "sales_meeting"
+                      ]
+                    },
+                    "reasons": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "creation": {
+                      "type": "object",
+                      "properties": {
+                        "legal_form": {
+                          "type": "string"
+                        },
+                        "action": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "selection": {
+                      "type": "object",
+                      "description": "Offre choisie. Au moins 'accounting' ou 'bank'.",
+                      "properties": {
+                        "accounting": {
+                          "type": "object",
+                          "required": [
+                            "pack",
+                            "sector",
+                            "frequency"
+                          ],
+                          "properties": {
+                            "pack": {
+                              "type": "string",
+                              "enum": [
+                                "essentiel",
+                                "elite"
+                              ]
+                            },
+                            "sector": {
+                              "type": "string",
+                              "enum": [
+                                "base",
+                                "independant",
+                                "btp",
+                                "diagnostic_immo",
+                                "commerce",
+                                "ecommerce",
+                                "restauration",
+                                "transport_vtc"
+                              ]
+                            },
+                            "frequency": {
+                              "type": "string",
+                              "enum": [
+                                "monthly",
+                                "yearly"
+                              ]
+                            },
+                            "vat": {
+                              "type": "string",
+                              "enum": [
+                                "none",
+                                "quarterly",
+                                "monthly"
+                              ]
+                            },
+                            "oss": {
+                              "type": "boolean"
+                            },
+                            "ioss": {
+                              "type": "boolean"
+                            },
+                            "employees": {
+                              "type": "integer",
+                              "description": "Nombre de salariés (bulletins de paie / mois)"
+                            }
+                          }
+                        },
+                        "bank": {
+                          "type": "object",
+                          "required": [
+                            "pack",
+                            "frequency"
+                          ],
+                          "properties": {
+                            "pack": {
+                              "type": "string",
+                              "enum": [
+                                "basique",
+                                "premium",
+                                "ultime"
+                              ]
+                            },
+                            "frequency": {
+                              "type": "string",
+                              "enum": [
+                                "monthly",
+                                "yearly"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "quote": {
+                      "type": "object"
+                    },
+                    "bank_signup_url": {
+                      "type": "string"
+                    },
+                    "upsell_hints": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "sales_meeting_url": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/offers/checkout": {
+      "post": {
+        "operationId": "generateAccountingBankCheckout",
+        "summary": "Générer les liens de paiement compta / compte pro",
+        "description": "Génère un lien de paiement Chargebee par abonnement (comptabilité et compte pro sont payés séparément), au prix de la grille officielle.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "selection"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "company_name": {
+                    "type": "string"
+                  },
+                  "selection": {
+                    "type": "object",
+                    "description": "Offre choisie. Au moins 'accounting' ou 'bank'.",
+                    "properties": {
+                      "accounting": {
+                        "type": "object",
+                        "required": [
+                          "pack",
+                          "sector",
+                          "frequency"
+                        ],
+                        "properties": {
+                          "pack": {
+                            "type": "string",
+                            "enum": [
+                              "essentiel",
+                              "elite"
+                            ]
+                          },
+                          "sector": {
+                            "type": "string",
+                            "enum": [
+                              "base",
+                              "independant",
+                              "btp",
+                              "diagnostic_immo",
+                              "commerce",
+                              "ecommerce",
+                              "restauration",
+                              "transport_vtc"
+                            ]
+                          },
+                          "frequency": {
+                            "type": "string",
+                            "enum": [
+                              "monthly",
+                              "yearly"
+                            ]
+                          },
+                          "vat": {
+                            "type": "string",
+                            "enum": [
+                              "none",
+                              "quarterly",
+                              "monthly"
+                            ]
+                          },
+                          "oss": {
+                            "type": "boolean"
+                          },
+                          "ioss": {
+                            "type": "boolean"
+                          },
+                          "employees": {
+                            "type": "integer",
+                            "description": "Nombre de salariés (bulletins de paie / mois)"
+                          }
+                        }
+                      },
+                      "bank": {
+                        "type": "object",
+                        "required": [
+                          "pack",
+                          "frequency"
+                        ],
+                        "properties": {
+                          "pack": {
+                            "type": "string",
+                            "enum": [
+                              "basique",
+                              "premium",
+                              "ultime"
+                            ]
+                          },
+                          "frequency": {
+                            "type": "string",
+                            "enum": [
+                              "monthly",
+                              "yearly"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Liens de paiement",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "quote": {
+                      "type": "object"
+                    },
+                    "payment_links": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "site": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "mode": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "amountHt": {
+                            "type": "number"
+                          },
+                          "amountTtc": {
+                            "type": "number"
+                          },
+                          "error": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "sales_meeting_url": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/offers/sales-meeting": {
+      "post": {
+        "operationId": "getSalesMeetingLink",
+        "summary": "Lien de prise de RDV avec un conseiller",
+        "description": "Retourne un lien Calendly pré-rempli pour prendre RDV avec un conseiller LegalPlace.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "summary": {
+                    "type": "string",
+                    "description": "Résumé du besoin (société, activité, questions)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lien de RDV",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "meeting_url": {
                       "type": "string"
                     }
                   }
