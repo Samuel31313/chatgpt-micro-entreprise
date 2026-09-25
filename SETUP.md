@@ -253,3 +253,40 @@ Modifiez `STRIPE_PRICE_CENTS` dans votre `.env`. Par défaut : `6900` (= 69 €)
 ### Comment passer en production INPI ?
 
 Changez `INPI_ENV=production` dans votre `.env`. Utilisez d'abord `INPI_ENV=demo` pour tester.
+
+## Souscription comptabilité & compte pro (sociétés existantes)
+
+### Funnel web (`/comptabilite`)
+
+Page publique mobile-first (`public/souscription.html`), servie par l'API, sans dépendance front :
+
+1. Accueil → « Votre société est-elle immatriculée ? »
+   - **Pas encore** → choix de la forme → lien vers la création LegalPlace (création offerte avec la compta annuelle) ou RDV si le statut n'est pas choisi.
+   - **En cours** → RDV conseiller (offre création + compta + compte pro).
+2. Une question par écran (besoin, forme, activité → secteur tarifaire, CA, salariés, TVA, OSS, situation comptable, usage du compte pro). Le prix se met à jour en direct (panneau à droite sur desktop, barre en bas sur mobile).
+3. `POST /api/funnel/qualify` :
+   - offre en ligne → écran d'offre (annuel/mensuel, Essentiel/Elite, packs LP Pro avec recommandation) → coordonnées → `POST /api/funnel/checkout` → **un paiement Chargebee par abonnement** ;
+   - SCI, micro/EI/asso, activité à vérifier, CA > 1 M€, > 10 salariés, bilan en retard, reprise avec salariés, anglophone → écran RDV → `POST /api/funnel/meeting` (Calendly pré-rempli).
+4. Leads enregistrés dans la table `Lead` (souscription et RDV). La progression est gardée en `sessionStorage` : au retour du paiement Chargebee (`/comptabilite?paye=1`), le visiteur retrouve l'étape de paiement.
+
+Endpoints publics `/api/funnel/*` : pas d'authentification, limite de 60 requêtes/minute par IP. Aucune remise possible côté funnel.
+
+La grille (`src/data/pricing.ts`) reprend le référentiel Notion *« [Tarif] Offre tarifaire : référentiel ComptaPlace & LegalPlace »* et la FAQ LP Pro.
+
+### Liens de paiement Chargebee
+
+| Mode | Quand | Ce qui est possible |
+|---|---|---|
+| **API** (`CHARGEBEE_*_API_KEY` renseignée) | Recommandé | Prix sectoriels (override de prix : activer *Allow price override* sur le site) et remises (`discounts[]`) |
+| **URL** (pas de clé) | Par défaut | Uniquement les offres au prix catalogue Chargebee (secteur *Base*, sans remise) |
+| **Fallback** | Site ou item_price non configuré | Compte pro → `LPPRO_SIGNUP_URL` ; compta → pas de lien, le funnel propose le RDV |
+
+### Outil sales : custom checkout (`/sales`)
+
+- Ouvrir `https://votre-domaine.com/sales`, saisir la clé `SALES_API_KEY` (ou `SALES_MANAGER_API_KEY`).
+- Composer l'offre (compta, compte pro, options, remises) : le récapitulatif se recalcule en direct et signale tout écart aux marges de manœuvre :
+  - remise compta ≤ 10 % en annuel uniquement, avec justification (devis concurrent) ; aucune en mensuel ;
+  - 1 an de compte pro Basique offert uniquement si compta **annuelle** ;
+  - frais d'ouverture compte pro (mensuel) jusqu'à 39,50 €.
+- Hors marges → l'offre passe en `pending_approval` : le client voit l'offre mais ne peut pas payer tant qu'un manager ne l'a pas validée (liste « Mes offres » avec la clé manager).
+- Le client reçoit `https://votre-domaine.com/offre/<id>` : récapitulatif, un bouton de paiement par abonnement (la hosted page Chargebee est générée au clic), bouton de reprise de RDV. Validité : 15 jours.

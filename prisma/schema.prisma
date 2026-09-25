@@ -58,3 +58,40 @@ model Document {
 
   createdAt DateTime @default(now())
 }
+
+// ─── Souscription compta / compte pro (sociétés existantes) ───
+
+model Lead {
+  id          String   @id @default(cuid())
+  email       String
+  phone       String?
+  name        String?
+  companyName String?
+  siren       String?
+  legalForm   String?
+  answers     String // JSON QualificationAnswers
+  route       String // creation | self_checkout | sales_meeting
+  quote       String? // JSON Quote
+  createdAt   DateTime @default(now())
+}
+
+model CustomOffer {
+  id          String   @id @default(cuid())
+  slug        String   @unique // identifiant public de l'offre (/offre/:slug)
+  salesEmail  String
+  salesName   String?
+  email       String
+  firstName   String?
+  lastName    String?
+  phone       String?
+  companyName String?
+  siren       String?
+  message     String? // mot personnalisé du sales
+  selection   String // JSON OfferSelection
+  quote       String // JSON Quote
+  status      String   @default("sent") // pending_approval | sent | rejected | expired
+  approvedBy  String?
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
