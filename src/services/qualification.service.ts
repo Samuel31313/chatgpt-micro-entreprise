@@ -31,8 +31,8 @@ export interface QualificationResult {
   reasons: string[];
   creation?: {
     legal_form: LegalForm | null;
-    /** Action GPT à appeler, sinon lien direct. */
-    action: "generateSasuCheckout" | "generateMicroEntrepriseCheckout" | "choose_status" | "link";
+    /** "link" : parcours de création LegalPlace ; "choose_status" : statut à définir avec un conseiller. */
+    action: "choose_status" | "link";
     url?: string;
   };
   selection?: OfferSelection;
@@ -43,6 +43,9 @@ export interface QualificationResult {
 }
 
 const CREATION_LINKS: Partial<Record<LegalForm, string>> = {
+  micro: "https://www.legalplace.fr/contrats/creez-votre-micro-entreprise/creer",
+  ei: "https://www.legalplace.fr/contrats/creez-votre-micro-entreprise/creer",
+  sasu: "https://www.legalplace.fr/contrats/creation-sasu/creer",
   sas: "https://www.legalplace.fr/contrats/creation-sas/creer",
   eurl: "https://www.legalplace.fr/contrats/creation-eurl/creer",
   sarl: "https://www.legalplace.fr/contrats/creation-sarl/creer",
@@ -64,11 +67,10 @@ export function qualify(a: QualificationAnswers): QualificationResult {
   // 1. Pas encore de société → flow de création LegalPlace
   if (a.company_status === "not_created") {
     const form = a.legal_form && a.legal_form !== "autre" ? a.legal_form : null;
-    let creation: QualificationResult["creation"];
-    if (form === "micro" || form === "ei") creation = { legal_form: form, action: "generateMicroEntrepriseCheckout" };
-    else if (form === "sasu") creation = { legal_form: form, action: "generateSasuCheckout" };
-    else if (form && CREATION_LINKS[form]) creation = { legal_form: form, action: "link", url: CREATION_LINKS[form] };
-    else creation = { legal_form: null, action: "choose_status" };
+    const creation: QualificationResult["creation"] =
+      form && CREATION_LINKS[form]
+        ? { legal_form: form, action: "link", url: CREATION_LINKS[form] }
+        : { legal_form: null, action: "choose_status" };
     return {
       route: "creation",
       reasons: ["La société n'est pas encore créée : on commence par la création avec LegalPlace (création offerte avec un abonnement comptable annuel)."],

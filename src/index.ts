@@ -10,11 +10,14 @@ import nafRoutes from "./routes/naf.routes";
 import sasuRoutes from "./routes/sasu.routes";
 import microEntrepriseRoutes from "./routes/micro-entreprise.routes";
 import stripeWebhookRoutes from "./routes/stripe.webhook";
-import offersRoutes from "./routes/offers.routes";
+import funnelRoutes from "./routes/funnel.routes";
 import salesRoutes, { authenticateSales } from "./routes/sales.routes";
 import pagesRoutes from "./routes/pages.routes";
 
 const app = express();
+
+// Derrière le proxy de l'hébergeur (Railway) : req.ip = IP réelle du visiteur (rate limit du funnel)
+app.set("trust proxy", 1);
 
 // CORS — allow OpenAI GPT Actions to call this API
 app.use(
@@ -58,12 +61,14 @@ app.use("/api/inpi", authenticateGPT, inpiRoutes);
 app.use("/api/naf", authenticateGPT, nafRoutes);
 app.use("/api/sasu", authenticateGPT, sasuRoutes);
 app.use("/api/micro-entreprise", authenticateGPT, microEntrepriseRoutes);
-app.use("/api/offers", authenticateGPT, offersRoutes);
 
 // Outil sales (custom checkout) — authentifié par SALES_API_KEY / SALES_MANAGER_API_KEY
 app.use("/api/sales", authenticateSales, salesRoutes);
 
-// Pages publiques : offre client (/offre/:slug), paiement, outil sales (/sales)
+// Funnel public de souscription compta / compte pro (page /comptabilite)
+app.use("/api/funnel", funnelRoutes);
+
+// Pages publiques : funnel (/comptabilite), offre client (/offre/:slug), paiement, outil sales (/sales)
 app.use(pagesRoutes);
 
 // Payment success/cancel pages

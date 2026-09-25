@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Comptabilité & Compte Pro LegalPlace</title>
+<meta name="description" content="Votre expert-comptable et votre compte pro au même endroit. Tarif en 1 minute, souscription en ligne.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f4f6fb;--surface:#ffffff;--surface-2:#eceff7;--ink:#0b1633;--muted:#5b6479;--line:#dde3ef;
+  --accent:#2743f5;--accent-ink:#ffffff;--accent-soft:#e7ebff;--accent-line:#b9c4ff;
+  --save:#0f9f6e;--save-soft:#dcf5ea;--warn:#a15c00;--warn-soft:#fdf0d9;--err:#c0262d;
+  --shadow:0 1px 2px rgba(11,22,51,.06),0 8px 24px rgba(11,22,51,.06);
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --sans:"Figtree",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;
+  --bg:#0a0f1e;--surface:#121a2e;--surface-2:#1a2340;--ink:#eef2ff;--muted:#a3acc4;--line:#27314d;
+  --accent:#7c8cff;--accent-ink:#0a0f1e;--accent-soft:#1d2752;--accent-line:#3c4a8f;
+  --save:#3ddc9f;--save-soft:#0f2b22;--warn:#f3b44d;--warn-soft:#33260c;--err:#ff7b7b;--shadow:none}}
+:root[data-theme="dark"]{color-scheme:dark;
+  --bg:#0a0f1e;--surface:#121a2e;--surface-2:#1a2340;--ink:#eef2ff;--muted:#a3acc4;--line:#27314d;
+  --accent:#7c8cff;--accent-ink:#0a0f1e;--accent-soft:#1d2752;--accent-line:#3c4a8f;
+  --save:#3ddc9f;--save-soft:#0f2b22;--warn:#f3b44d;--warn-soft:#33260c;--err:#ff7b7b;--shadow:none}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--sans);-webkit-font-smoothing:antialiased;padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+@media (min-width:960px){body{padding-bottom:0}}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1120px;margin:0 auto;padding-inline:16px;height:60px;display:flex;align-items:center;gap:14px}
+.brand{font:800 19px var(--display);letter-spacing:-.02em;white-space:nowrap}
+.brand span{color:var(--accent)}
+.top-tag{color:var(--muted);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.back{margin-left:auto;background:transparent;border:1px solid var(--line);border-radius:99px;padding:6px 12px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
+.progress{height:3px;background:var(--line)}
+.progress i{display:block;height:100%;width:0;background:var(--accent);transition:width .35s ease}
+
+/* layout */
+.shell{max-width:1120px;margin:0 auto;padding-inline:16px;padding-block:28px 40px;display:grid;gap:32px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:960px){.shell{grid-template-columns:minmax(0,1fr) 360px;align-items:start;padding-block:48px 64px}}
+.stage{max-width:620px;width:100%}
+.eyebrow{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 10px}
+h1,h2{font-family:var(--display);letter-spacing:-.025em;text-wrap:balance;margin:0}
+h1{font-size:clamp(34px,6vw,54px);line-height:1.02;font-weight:800}
+h2{font-size:clamp(26px,4.4vw,36px);line-height:1.08;font-weight:800}
+.lead{color:var(--muted);font-size:18px;margin:14px 0 0;max-width:52ch}
+.step-sub{color:var(--muted);margin:10px 0 0}
+
+/* hero */
+.hero-price{display:flex;align-items:baseline;gap:10px;margin-top:26px;flex-wrap:wrap}
+.hero-price b{font:800 44px/1 var(--display);letter-spacing:-.03em}
+.hero-price span{color:var(--muted)}
+.proofs{display:grid;gap:10px;margin:26px 0 0;padding:0;list-style:none}
+.proofs li{display:flex;gap:10px;align-items:flex-start}
+.tick{flex:none;width:22px;height:22px;border-radius:50%;background:var(--save-soft);color:var(--save);display:grid;place-items:center;font-size:13px;font-weight:800;margin-top:1px}
+
+/* choice cards */
+.choices{display:grid;gap:10px;margin-top:24px;grid-template-columns:minmax(0,1fr)}
+.choices.cols{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+.card{position:relative;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:16px 18px;cursor:pointer;display:grid;gap:3px;transition:border-color .15s,transform .15s,box-shadow .15s;box-shadow:var(--shadow)}
+.card:hover{border-color:var(--accent-line);transform:translateY(-1px)}
+.card.on{border-color:var(--accent);background:var(--accent-soft)}
+.card b{font-weight:700;font-size:16px}
+.card small{color:var(--muted);font-size:14px}
+.badge{position:absolute;top:-10px;right:14px;background:var(--accent);color:var(--accent-ink);font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:99px}
+.badge.save{background:var(--save);color:#fff}
+
+/* forms */
+.fields{display:grid;gap:14px;margin-top:24px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.field{display:grid;gap:6px;font-size:14px;font-weight:600}
+.field input{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);font-weight:400;font-size:16px}
+.field input:focus{border-color:var(--accent);outline:none}
+.field small{color:var(--muted);font-weight:400}
+.stepper{display:flex;align-items:center;gap:14px;margin-top:24px}
+.stepper button{width:52px;height:52px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);font-size:24px;cursor:pointer}
+.stepper output{font:800 44px/1 var(--display);min-width:70px;text-align:center;font-variant-numeric:tabular-nums}
+.err{color:var(--err);font-size:14px;margin:10px 0 0}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:14px;padding:15px 22px;font-weight:700;font-size:16px;cursor:pointer;text-decoration:none;transition:transform .15s,opacity .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent-line)}
+.btn.block{width:100%}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+
+/* offer */
+.toggle{display:inline-flex;background:var(--surface-2);border-radius:99px;padding:4px;margin-top:22px}
+.toggle button{border:0;background:transparent;border-radius:99px;padding:9px 16px;font-weight:700;font-size:14px;cursor:pointer;color:var(--muted)}
+.toggle button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.toggle em{font-style:normal;color:var(--save);margin-left:6px}
+.section-t{font:800 20px var(--display);letter-spacing:-.02em;margin:32px 0 0}
+.plans{display:grid;gap:12px;margin-top:14px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.plans.three{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.plan{position:relative;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:18px;cursor:pointer;display:grid;gap:8px;align-content:start;box-shadow:var(--shadow)}
+.plan.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.plan h3{margin:0;font:800 19px var(--display);letter-spacing:-.02em}
+.plan .price{font:800 30px/1 var(--display);letter-spacing:-.03em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.plans.three .price{font-size:26px}
+.plan .price small{font:500 14px var(--sans);color:var(--muted);letter-spacing:0}
+.plan .billed{color:var(--muted);font-size:13px}
+.plan ul{margin:4px 0 0;padding:0;list-style:none;display:grid;gap:5px;font-size:14px}
+.plan li::before{content:"✓";color:var(--save);font-weight:800;margin-right:8px}
+.none-link{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font-size:14px;margin-top:10px;padding:0}
+
+/* summary */
+.summary{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:var(--shadow);display:grid;gap:14px}
+@media (min-width:960px){.summary{position:sticky;top:92px}}
+@media (max-width:959px){.summary.desk{display:none}}
+.sum-h{display:flex;justify-content:space-between;align-items:center}
+.sum-h p{margin:0;font-weight:700}
+.sum-big{font:800 40px/1 var(--display);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.sum-big small{font:500 15px var(--sans);color:var(--muted);letter-spacing:0}
+.sum-note{color:var(--muted);font-size:14px;margin:0}
+.sum-lines{margin:0;padding:0;list-style:none;display:grid;gap:8px;font-size:14px;border-top:1px solid var(--line);padding-top:12px}
+.sum-lines li{display:flex;justify-content:space-between;gap:12px;font-variant-numeric:tabular-nums}
+.sum-lines li span:last-child{white-space:nowrap}
+.sum-lines .disc{color:var(--save)}
+.chip{display:inline-block;background:var(--save-soft);color:var(--save);font-weight:700;font-size:13px;padding:4px 10px;border-radius:99px}
+.sum-proofs{margin:0;padding:12px 0 0;border-top:1px solid var(--line);list-style:none;display:grid;gap:6px;font-size:14px;color:var(--muted)}
+
+/* mobile bar */
+.mbar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:14px}
+@media (min-width:960px){.mbar{display:none}}
+.mbar .mprice{flex:1;min-width:0}
+.mbar .mprice b{font:800 22px/1.1 var(--display);font-variant-numeric:tabular-nums;display:block}
+.mbar .mprice span{color:var(--muted);font-size:13px}
+.mbar .btn{padding:13px 18px}
+
+/* pay */
+.paysteps{display:grid;gap:12px;margin-top:24px}
+.pay{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:18px;display:grid;gap:12px;box-shadow:var(--shadow)}
+.pay.done{border-color:var(--save)}
+.pay-h{display:flex;gap:12px;align-items:center}
+.num{flex:none;width:30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:800}
+.pay.done .num{background:var(--save-soft);color:var(--save)}
+.pay-h b{display:block}
+.pay-h span{color:var(--muted);font-size:14px}
+.msg{padding:12px 14px;border-radius:12px;font-size:14px}
+.msg.warn{background:var(--warn-soft);color:var(--warn)}
+
+.fade{animation:fade .28s ease-out}
+@keyframes fade{from{opacity:.6;transform:translateY(6px)}}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}.progress i,.card,.btn{transition:none}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">Legal<span>Place</span></div>
+    <div class="top-tag">Comptabilité &amp; compte pro</div>
+    <button class="back" id="back" type="button" hidden>← Retour</button>
+  </div>
+  <div class="progress"><i id="bar"></i></div>
+</header>
+
+<main class="shell">
+  <section class="stage" id="stage" aria-live="polite"></section>
+  <aside class="summary desk" id="summary" aria-label="Votre offre"></aside>
+</main>
+
+<div class="mbar" id="mbar">
+  <div class="mprice" id="mprice"></div>
+  <button class="btn" id="mcta" type="button" hidden>Continuer</button>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ───────── API : serveur (/api/funnel) ou logique embarquée (démo) ───────── */
+  var LOCAL = window.LP_LOCAL;
+  var api = LOCAL ? {
+    pricing: function () { return Promise.resolve(LOCAL.publicPricingGrid()); },
+    quote: function (sel) { return Promise.resolve(LOCAL.buildQuote(sel)); },
+    qualify: function (answers) { return Promise.resolve(LOCAL.qualify(answers)); },
+    checkout: function (contact, sel) {
+      return LOCAL.createCheckoutLinks(LOCAL.buildQuote(sel), {
+        email: contact.email, firstName: contact.first_name, lastName: contact.last_name, phone: contact.phone, company: contact.company_name
+      }).then(function (links) { return { payment_links: links }; });
+    },
+    meeting: function (contact, answers, reasons) {
+      return Promise.resolve({ meeting_url: LOCAL.salesMeetingUrl({
+        name: [contact.first_name, contact.last_name].filter(Boolean).join(" "), email: contact.email,
+        summary: [(answers.legal_form || "").toUpperCase(), contact.company_name].concat(reasons).filter(Boolean).join(" — ") }) });
+    }
+  } : {
+    pricing: function () { return call("GET", "/pricing").then(function (r) { return r.pricing; }); },
+    quote: function (sel) { return call("POST", "/quote", { selection: sel }).then(function (r) { return r.quote; }); },
+    qualify: function (answers) { return call("POST", "/qualify", { answers: answers }); },
+    checkout: function (contact, sel, answers) { return call("POST", "/checkout", { contact: contact, selection: sel, answers: answers }); },
+    meeting: function (contact, answers, reasons) { return call("POST", "/meeting", { contact: contact, answers: answers, reasons: reasons }); }
+  };
+  function call(method, path, body) {
+    return fetch("/api/funnel" + path, { method: method, headers: { "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || "Erreur réseau"); return j; }); });
+  }
+
+  /* ───────── helpers ───────── */
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+  function eur(n, dec) { return n.toLocaleString("fr-FR", { style: "currency", currency: "EUR", minimumFractionDigits: dec ? 2 : (n % 1 ? 2 : 0), maximumFractionDigits: 2 }); }
+  function eur0(n) { return Math.round(n).toLocaleString("fr-FR") + " €"; }
+  var store = {
+    get: function () { try { return JSON.parse(sessionStorage.getItem("lp_funnel") || "null"); } catch (e) { return null; } },
+    set: function (v) { try { sessionStorage.setItem("lp_funnel", JSON.stringify(v)); } catch (e) {} }
+  };
+
+  /* ───────── état ───────── */
+  var S = { answers: {}, contact: {}, sel: null, quote: null, result: null, links: null, opened: {} };
+  var grid = null, history = [], current = null;
+
+  /* ───────── questions ───────── */
+  var SECTORS = [
+    ["independant", "Conseil & freelance", "Consultant, développeur, designer…"],
+    ["base", "Services", "Agence, formation, services aux entreprises"],
+    ["btp", "BTP", "Travaux, artisans du bâtiment"],
+    ["commerce", "Commerce", "Boutique, caisse enregistreuse"],
+    ["ecommerce", "E-commerce", "Vente en ligne"],
+    ["restauration", "Restauration", "Restaurant, snack, traiteur"],
+    ["transport_vtc", "Transport & VTC", "VTC, taxi, livraison"],
+    ["diagnostic_immo", "Bureau d'étude", "Diagnostic immo, maîtrise d'œuvre"],
+    ["autre", "Autre activité", "Santé, finance, immobilier…"]
+  ];
+  var FORMS = [["sasu", "SASU"], ["sas", "SAS"], ["eurl", "EURL"], ["sarl", "SARL"], ["sci", "SCI"], ["micro", "Micro-entreprise"], ["ei", "Entreprise individuelle"], ["association", "Association"]];
+
+  var Q = {
+    status: { title: "Votre société est-elle déjà immatriculée ?", sub: "Vous avez un numéro SIREN.", key: "company_status",
+      opts: [["registered", "Oui, elle existe", "Je cherche un comptable et/ou un compte pro"], ["in_progress", "Elle est en cours de création", "Les démarches sont lancées"], ["not_created", "Pas encore", "Je veux créer ma société"]],
+      next: function (v) { return v === "registered" ? "needs" : v === "not_created" ? "creaForm" : "meeting"; } },
+    creaForm: { title: "Quelle société souhaitez-vous créer ?", key: "legal_form", cols: true,
+      opts: FORMS.filter(function (f) { return f[0] !== "association"; }).concat([["autre", "Je ne sais pas encore"]]),
+      next: function () { return "creation"; } },
+    needs: { title: "De quoi avez-vous besoin ?", key: "needs",
+      opts: [["both", "Comptabilité + compte pro", "Vos relevés arrivent tout seuls chez votre comptable", "Le combo"], ["accounting", "Comptabilité", "Expert-comptable, bilan et déclarations"], ["bank", "Compte pro", "Compte, cartes et virements"]],
+      map: function (v) { return v === "both" ? ["accounting", "bank"] : [v]; },
+      next: function () { return "form"; } },
+    form: { title: "Quelle est sa forme juridique ?", key: "legal_form", cols: true, opts: FORMS,
+      next: function () { return needs("accounting") ? "sector" : "bankUsers"; } },
+    sector: { title: "Quelle est son activité ?", sub: "Votre tarif dépend de votre secteur, pas de votre chiffre d'affaires.", key: "sector", cols: true, opts: SECTORS,
+      next: function () { return "revenue"; } },
+    revenue: { title: "Chiffre d'affaires annuel ?", sub: "Une estimation suffit.", key: "annual_revenue",
+      opts: [["60000", "Moins de 100 000 €"], ["300000", "100 000 € à 500 000 €"], ["700000", "500 000 € à 1 M€"], ["1500000", "Plus de 1 M€"]],
+      map: Number, next: function () { return "employees"; } },
+    employees: { title: "Combien de salariés ?", sub: "Hors dirigeant. Chaque bulletin de paie est à 29 € HT par mois.", key: "employees", stepper: true,
+      next: function () { return "vat"; } },
+    vat: { title: "Comment déclarez-vous la TVA ?", key: "vat_regime",
+      opts: [["franchise", "Pas de TVA", "Franchise en base"], ["quarterly", "Tous les trimestres"], ["monthly", "Tous les mois"], ["unknown", "Je ne sais pas", "Votre comptable vous conseillera"]],
+      next: function () { return S.answers.sector === "ecommerce" ? "eu" : "situation"; } },
+    eu: { title: "Vendez-vous à des particuliers ailleurs dans l'UE ?", sub: "Déclaration OSS, 20 € HT par mois.", key: "eu_sales",
+      opts: [["false", "Non, en France uniquement"], ["true", "Oui"]], map: function (v) { return v === "true"; },
+      next: function () { return "situation"; } },
+    situation: { title: "Où en est votre comptabilité ?", key: "accounting_situation",
+      opts: [["no_accountant", "Je n'ai pas d'expert-comptable"], ["new_fiscal_year", "Je démarre un nouvel exercice"], ["switching_accountant", "Je change d'expert-comptable", "En cours d'année"], ["late_closing", "Mon bilan est en retard"]],
+      next: function () { return needs("bank") ? "bankUsers" : "qualify"; } },
+    bankUsers: { title: "Qui utilisera le compte pro ?", key: "bank_users",
+      opts: [["1", "Moi seul", "1 carte"], ["2", "Plusieurs personnes", "Associés, salariés, cartes supplémentaires"]], map: Number,
+      next: function () { return "transfers"; } },
+    transfers: { title: "Combien de virements par mois ?", key: "transfers_per_month",
+      opts: [["10", "Moins de 20"], ["35", "Entre 20 et 50"], ["80", "Plus de 50"]], map: Number,
+      next: function () { return "qualify"; } }
+  };
+  var ORDER = ["status", "needs", "form", "sector", "revenue", "employees", "vat", "eu", "situation", "bankUsers", "transfers", "offer", "contact", "pay"];
+  function needs(n) { return (S.answers.needs || ["accounting", "bank"]).indexOf(n) > -1; }
+
+  /* ───────── navigation ───────── */
+  function go(id, push) {
+    if (push !== false && current) history.push(current);
+    current = id;
+    $("back").hidden = history.length === 0 || id === "pay";
+    var i = ORDER.indexOf(id);
+    $("bar").style.width = (i < 0 ? (id === "intro" ? 0 : 100) : Math.round((i + 1) / ORDER.length * 100)) + "%";
+    $("mcta").hidden = true;
+    $("mbar").hidden = id === "meeting" || id === "creation";
+    render(id);
+    store.set({ S: S, current: current, history: history });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+  $("back").onclick = function () { if (history.length) go(history.pop(), false); };
+
+  function render(id) {
+    var st = $("stage");
+    st.classList.remove("fade"); void st.offsetWidth; st.classList.add("fade");
+    if (Q[id]) return renderQuestion(id);
+    ({ intro: renderIntro, qualify: runQualify, offer: renderOffer, contact: renderContact, pay: renderPay, meeting: renderMeeting, creation: renderCreation })[id]();
+  }
+
+  /* ───────── écrans ───────── */
+  function renderIntro() {
+    $("stage").innerHTML =
+      '<p class="eyebrow">Sociétés déjà créées</p>' +
+      '<h1>Votre expert-comptable et votre compte pro, au même endroit.</h1>' +
+      '<p class="lead">Obtenez votre tarif en une minute et souscrivez en ligne. Vos relevés LP Pro arrivent directement dans votre comptabilité.</p>' +
+      '<div class="hero-price"><span>Comptabilité dès</span><b>74 €</b><span>HT/mois en annuel</span></div>' +
+      '<ul class="proofs">' +
+      '<li><i class="tick">✓</i><span>Bilan et liasse fiscale inclus dans l\'abonnement</span></li>' +
+      '<li><i class="tick">✓</i><span>Prix fixe selon votre secteur, qui n\'augmente pas avec votre chiffre d\'affaires</span></li>' +
+      '<li><i class="tick">✓</i><span>2 mois offerts en formule annuelle</span></li></ul>' +
+      '<div class="actions"><button class="btn" id="startBtn" type="button">Obtenir mon tarif</button></div>';
+    $("startBtn").onclick = function () { go("status"); };
+  }
+
+  function renderQuestion(id) {
+    var q = Q[id];
+    var html = '<h2>' + esc(q.title) + '</h2>' + (q.sub ? '<p class="step-sub">' + esc(q.sub) + '</p>' : "");
+    if (q.stepper) {
+      var n = S.answers.employees || 0;
+      html += '<div class="stepper"><button type="button" id="minus" aria-label="Moins">−</button><output id="empN">' + n + '</output><button type="button" id="plus" aria-label="Plus">+</button></div>' +
+        '<div class="actions"><button class="btn" id="stepOk" type="button">Continuer</button></div>';
+      $("stage").innerHTML = html;
+      var upd = function (d) { n = Math.max(0, Math.min(50, n + d)); $("empN").textContent = n; S.answers.employees = n; refreshQuote(); };
+      $("minus").onclick = function () { upd(-1); };
+      $("plus").onclick = function () { upd(1); };
+      $("stepOk").onclick = function () { S.answers.employees = n; go(q.next()); };
+      $("mcta").hidden = false; $("mcta").onclick = $("stepOk").onclick;
+      return;
+    }
+    var cur = S.answers[q.key];
+    html += '<div class="choices' + (q.cols ? " cols" : "") + '">' + q.opts.map(function (o) {
+      var on = cur !== undefined && String(q.map === undefined ? cur : (Array.isArray(cur) ? (cur.length > 1 ? "both" : cur[0]) : cur)) === o[0];
+      return '<button type="button" class="card' + (on ? " on" : "") + '" data-v="' + esc(o[0]) + '">' + (o[3] ? '<span class="badge">' + esc(o[3]) + '</span>' : "") +
+        '<b>' + esc(o[1]) + '</b>' + (o[2] ? '<small>' + esc(o[2]) + '</small>' : "") + '</button>';
+    }).join("") + '</div>';
+    $("stage").innerHTML = html;
+    $("stage").querySelectorAll(".card").forEach(function (b) {
+      b.onclick = function () {
+        var v = b.getAttribute("data-v");
+        S.answers[q.key] = q.map ? q.map(v) : v;
+        if (q.key === "bank_users") S.answers.bank_cards = S.answers.bank_users;
+        b.classList.add("on");
+        refreshQuote();
+        setTimeout(function () { go(q.next(v)); }, 140);
+      };
+    });
+  }
+
+  function runQualify() {
+    $("stage").innerHTML = '<h2>On prépare votre offre…</h2>';
+    api.qualify(S.answers).then(function (r) {
+      S.result = r;
+      if (r.route === "sales_meeting") return go("meeting", false);
+      if (r.route === "creation") return go("creation", false);
+      if (!r.selection && r.bank_signup_url) { S.sel = null; return go("offer", false); }
+      S.sel = r.selection;
+      go("offer", false);
+    }).catch(showErr);
+  }
+
+  function renderOffer() {
+    var sel = S.sel;
+    if (!sel) {
+      $("stage").innerHTML = '<p class="eyebrow">Votre offre</p><h2>Ouvrez votre compte pro micro-entreprise.</h2>' +
+        '<p class="step-sub">Les micro-entreprises ont une offre LP Pro dédiée, à souscrire directement en ligne.</p>' +
+        '<div class="actions"><a class="btn" href="' + esc(S.result.bank_signup_url) + '" target="_blank" rel="noopener">Ouvrir mon compte pro</a></div>';
+      return renderSummary();
+    }
+    var freq = (sel.accounting || sel.bank).frequency;
+    var html = '<p class="eyebrow">Votre offre</p><h2>Voici l\'offre adaptée à votre société.</h2>' +
+      '<div class="toggle" role="group" aria-label="Fréquence de paiement"><button type="button" data-f="yearly" class="' + (freq === "yearly" ? "on" : "") + '">Annuel<em>2 mois offerts</em></button><button type="button" data-f="monthly" class="' + (freq === "monthly" ? "on" : "") + '">Mensuel</button></div>';
+
+    if (sel.accounting) {
+      var sec = grid.accounting.sectors.filter(function (s) { return s.key === sel.accounting.sector; })[0];
+      html += '<h3 class="section-t">Comptabilité</h3><p class="step-sub" style="margin-top:4px">' + esc(sec.label) + '</p><div class="plans">' +
+        ["essentiel", "elite"].map(function (k) {
+          var p = sec[k], per = freq === "yearly" ? p.yearly / 12 : p.monthly;
+          return '<button type="button" class="plan' + (sel.accounting.pack === k ? " on" : "") + '" data-acc="' + k + '">' + (k === "elite" ? '<span class="badge">Comptable dédié</span>' : "") +
+            '<h3>' + esc(grid.accounting.packs[k].label.replace("Pack ", "")) + '</h3>' +
+            '<div class="price">' + eur0(per) + ' <small>HT/mois</small></div>' +
+            '<div class="billed">' + (freq === "yearly" ? "Facturé " + eur(p.yearly) + " HT par an" : "Sans engagement annuel") + '</div>' +
+            '<ul>' + grid.accounting.packs[k].features.map(function (f) { return "<li>" + esc(f) + "</li>"; }).join("") + '</ul></button>';
+        }).join("") + '</div>';
+    }
+
+    if (needs("bank")) {
+      var rec = S.result.selection && S.result.selection.bank ? S.result.selection.bank.pack : "basique";
+      html += '<h3 class="section-t">Compte pro LP Pro</h3><div class="plans three">' +
+        grid.bank.packs.map(function (p) {
+          var on = sel.bank && sel.bank.pack === p.key;
+          var per = freq === "yearly" ? p.yearly / 12 : p.monthly;
+          return '<button type="button" class="plan' + (on ? " on" : "") + '" data-bank="' + p.key + '">' + (p.key === rec ? '<span class="badge save">Recommandé</span>' : "") +
+            '<h3>' + esc(p.label.replace("LP Pro ", "")) + '</h3>' +
+            '<div class="price">' + eur(Math.round(per * 100) / 100) + ' <small>HT/mois</small></div>' +
+            '<div class="billed">' + (freq === "yearly" ? "Facturé " + eur(p.yearly) + " HT par an" : "+ " + eur(p.monthly_opening_fee) + " HT d'ouverture") + '</div>' +
+            '<ul>' + p.features.slice(0, 3).map(function (f) { return "<li>" + esc(f) + "</li>"; }).join("") + '</ul></button>';
+        }).join("") + '</div>' +
+        (sel.bank ? '<button type="button" class="none-link" id="noBank">Continuer sans compte pro</button>' : '<button type="button" class="none-link" id="addBank">Ajouter le compte pro</button>');
+    }
+
+    html += '<div class="actions"><button class="btn" id="toContact" type="button">Continuer</button><button class="btn ghost" id="talk" type="button">Parler à un conseiller</button></div>';
+    $("stage").innerHTML = html;
+
+    $("stage").querySelectorAll("[data-f]").forEach(function (b) { b.onclick = function () {
+      var f = b.getAttribute("data-f"); if (sel.accounting) sel.accounting.frequency = f; if (sel.bank) sel.bank.frequency = f; S._freq = f; renderOffer(); refreshQuote(); }; });
+    $("stage").querySelectorAll("[data-acc]").forEach(function (b) { b.onclick = function () { sel.accounting.pack = b.getAttribute("data-acc"); renderOffer(); refreshQuote(); }; });
+    $("stage").querySelectorAll("[data-bank]").forEach(function (b) { b.onclick = function () {
+      sel.bank = { pack: b.getAttribute("data-bank"), frequency: freq }; renderOffer(); refreshQuote(); }; });
+    if ($("noBank")) $("noBank").onclick = function () { if (!sel.accounting) return; delete sel.bank; renderOffer(); refreshQuote(); };
+    if ($("addBank")) $("addBank").onclick = function () { sel.bank = { pack: "basique", frequency: freq }; renderOffer(); refreshQuote(); };
+    $("toContact").onclick = function () { go("contact"); };
+    $("talk").onclick = function () { S.result = Object.assign({}, S.result, { reasons: ["Le client souhaite échanger avec un conseiller avant de souscrire."] }); go("meeting"); };
+    $("mcta").hidden = false; $("mcta").onclick = $("toContact").onclick;
+    refreshQuote();
+  }
+
+  function contactFields(withCompany) {
+    var c = S.contact;
+    return '<div class="fields">' +
+      field("first_name", "Prénom", c.first_name, "given-name") + field("last_name", "Nom", c.last_name, "family-name") +
+      field("email", "Email", c.email, "email", "email") + field("phone", "Téléphone", c.phone, "tel", "tel") +
+      (withCompany ? field("company_name", "Nom de la société", c.company_name, "organization") + field("siren", "SIREN", c.siren, "off", "text", "9 chiffres, facultatif") : "") +
+      '</div><p class="err" id="formErr" hidden></p>';
+  }
+  function field(k, label, v, ac, type, hint) {
+    return '<label class="field">' + label + '<input id="f_' + k + '" name="' + k + '" type="' + (type || "text") + '" autocomplete="' + ac + '" value="' + esc(v || "") + '">' + (hint ? '<small>' + hint + '</small>' : "") + '</label>';
+  }
+  function readContact() {
+    ["first_name", "last_name", "email", "phone", "company_name", "siren"].forEach(function (k) { var el = $("f_" + k); if (el) S.contact[k] = el.value.trim(); });
+    var e = !S.contact.first_name ? "Indiquez votre prénom." : !/^\S+@\S+\.\S+$/.test(S.contact.email || "") ? "Indiquez une adresse email valide." : !S.contact.phone ? "Indiquez votre téléphone." : null;
+    if (e) { $("formErr").textContent = e; $("formErr").hidden = false; }
+    return !e;
+  }
+
+  function renderContact() {
+    $("stage").innerHTML = '<p class="eyebrow">Dernière étape</p><h2>Vos coordonnées</h2><p class="step-sub">Pour créer votre espace et vous envoyer vos factures.</p>' +
+      contactFields(true) + '<div class="actions"><button class="btn" id="toPay" type="button">Accéder au paiement</button></div>';
+    $("toPay").onclick = function () {
+      if (!readContact()) return;
+      $("toPay").disabled = true; $("toPay").textContent = "Préparation…";
+      api.checkout(S.contact, S.sel, S.answers).then(function (r) { S.links = r.payment_links; go("pay"); }).catch(showErr);
+    };
+    $("mcta").hidden = false; $("mcta").textContent = "Accéder au paiement"; $("mcta").onclick = function () { $("toPay").click(); };
+  }
+
+  function renderPay() {
+    $("mcta").textContent = "Continuer";
+    var links = S.links || [];
+    var anyMissing = links.some(function (l) { return !l.url; });
+    $("stage").innerHTML = '<p class="eyebrow">Paiement</p><h2>Plus que ' + (links.length > 1 ? "deux paiements" : "un paiement") + ', ' + esc(S.contact.first_name) + '.</h2>' +
+      (links.length > 1 ? '<p class="step-sub">La comptabilité et le compte pro sont deux abonnements distincts, chacun avec son paiement sécurisé.</p>' : "") +
+      '<div class="paysteps">' + links.map(function (l, i) {
+        var done = S.opened[l.site];
+        return '<div class="pay' + (done ? " done" : "") + '"><div class="pay-h"><span class="num">' + (done ? "✓" : i + 1) + '</span><div><b>' + esc(l.label) + '</b><span>' + eur(l.amountTtc, true) + ' TTC aujourd\'hui</span></div></div>' +
+          (l.url ? '<a class="btn' + (done ? " ghost" : "") + ' block" href="' + esc(l.url) + '" target="_blank" rel="noopener" data-site="' + l.site + '">' + (done ? "Rouvrir le paiement" : "Payer " + eur(l.amountTtc, true)) + '</a>'
+            : '<div class="msg warn">Ce paiement sera finalisé avec un conseiller.</div>') + '</div>';
+      }).join("") + '</div>' +
+      (anyMissing ? '<div class="actions"><button class="btn ghost" id="talk2" type="button">Prendre rendez-vous avec un conseiller</button></div>' : "");
+    $("stage").querySelectorAll("[data-site]").forEach(function (a) { a.addEventListener("click", function () {
+      S.opened[a.getAttribute("data-site")] = true; store.set({ S: S, current: current, history: history }); setTimeout(renderPay, 300); }); });
+    if ($("talk2")) $("talk2").onclick = function () { S.result = Object.assign({}, S.result, { reasons: ["Finalisation du paiement avec un conseiller."] }); go("meeting"); };
+    renderSummary();
+  }
+
+  function renderMeeting() {
+    var reasons = (S.result && S.result.reasons) || (S.answers.company_status === "in_progress" ? ["Création en cours : offre création + comptabilité + compte pro à construire ensemble."] : []);
+    var why = S.answers.company_status === "in_progress"
+      ? "Votre société est en cours de création : un conseiller vous propose une offre qui regroupe création, comptabilité et compte pro."
+      : "Votre situation mérite un devis sur mesure. Un conseiller vous rappelle et prépare votre offre.";
+    $("stage").innerHTML = '<p class="eyebrow">Parlons-en</p><h2>Un conseiller vous prépare votre offre.</h2><p class="step-sub">' + esc(why) + '</p>' +
+      contactFields(true) + '<div class="actions"><button class="btn" id="book" type="button">Choisir un créneau</button></div><div id="bookRes"></div>';
+    $("book").onclick = function () {
+      if (!readContact()) return;
+      api.meeting(S.contact, S.answers, reasons).then(function (r) {
+        $("bookRes").innerHTML = '<div class="actions"><a class="btn" href="' + esc(r.meeting_url) + '" target="_blank" rel="noopener">Ouvrir l\'agenda</a></div><p class="step-sub">Vos informations sont déjà remplies dans l\'agenda.</p>';
+        $("book").hidden = true;
+      }).catch(showErr);
+    };
+    renderSummary();
+  }
+
+  function renderCreation() {
+    var r = S.result || {};
+    var url = r.creation && r.creation.url;
+    $("stage").innerHTML = '<p class="eyebrow">Création de société</p><h2>Commencez par créer votre société avec LegalPlace.</h2>' +
+      '<p class="step-sub">La prestation de création est offerte si vous prenez la comptabilité en formule annuelle. Votre comptable et votre compte pro sont prêts dès l\'immatriculation.</p>' +
+      '<div class="actions">' + (url ? '<a class="btn" href="' + esc(url) + '" target="_blank" rel="noopener">Créer ma société</a>' : "") +
+      '<button class="btn' + (url ? " ghost" : "") + '" id="talk3" type="button">Être conseillé sur mon statut</button></div>';
+    $("talk3").onclick = function () { S.result = { reasons: ["Création de société : statut à définir."] }; go("meeting"); };
+    renderSummary();
+  }
+
+  function showErr(e) {
+    var p = $("formErr");
+    if (p) { p.textContent = e.message; p.hidden = false; } else { $("stage").insertAdjacentHTML("beforeend", '<p class="err">' + esc(e.message) + '</p>'); }
+    ["toPay", "book"].forEach(function (id) { var b = $(id); if (b) { b.disabled = false; } });
+    if ($("toPay")) $("toPay").textContent = "Accéder au paiement";
+  }
+
+  /* ───────── devis en direct ───────── */
+  function draftSelection() {
+    if (S.sel) return S.sel;
+    var a = S.answers;
+    if (!a.needs && !a.sector) return null;
+    var s = {}, freq = S._freq || "yearly";
+    var offline = ["sci", "micro", "ei", "association", "autre"].indexOf(a.legal_form) > -1;
+    if (needs("accounting") && !offline && a.sector && a.sector !== "autre") s.accounting = { pack: "essentiel", sector: a.sector, frequency: freq,
+      vat: a.vat_regime === "monthly" ? "monthly" : a.vat_regime === "quarterly" ? "quarterly" : "none", oss: !!a.eu_sales, employees: a.employees || 0 };
+    if (needs("bank") && ["micro", "ei"].indexOf(a.legal_form) < 0) s.bank = { pack: "basique", frequency: freq };
+    return s.accounting || s.bank ? s : null;
+  }
+  var qTimer = null, qSeq = 0;
+  function refreshQuote() {
+    clearTimeout(qTimer);
+    qTimer = setTimeout(function () {
+      var sel = draftSelection(), seq = ++qSeq;
+      if (!sel) { S.quote = null; return renderSummary(); }
+      api.quote(sel).then(function (q) { if (seq === qSeq) { S.quote = q; renderSummary(); } }).catch(function () {});
+    }, 120);
+  }
+
+  function renderSummary() {
+    var q = S.quote, sum = $("summary");
+    var inFlow = ["offer", "contact", "pay"].indexOf(current) > -1;
+    if (!q || current === "meeting" || current === "creation" || current === "intro") {
+      sum.innerHTML = '<div class="sum-h"><p>Votre offre</p></div><p class="sum-note">' +
+        (current === "intro" ? "Répondez à quelques questions : votre tarif s'affiche ici au fil de vos réponses." : current === "meeting" || current === "creation" ? "Un conseiller vous fait une proposition sur mesure." : "Votre tarif s'affiche dès que vous avez indiqué votre activité.") + '</p>' + proofs();
+      $("mprice").innerHTML = current === "intro" ? '<b>dès 74 € HT/mois</b><span>comptabilité en annuel</span>' : '<b>Votre tarif</b><span>au fil de vos réponses</span>';
+      return;
+    }
+    var yearly = q.lines.some(function (l) { return l.frequency === "yearly"; });
+    var saved = 0;
+    q.lines.forEach(function (l) { if (l.site === "accounting" && l.frequency === "yearly") saved += l.unitPrice * l.quantity / 10 * 2; });
+    sum.innerHTML = '<div class="sum-h"><p>' + (inFlow ? "Votre offre" : "Estimation") + '</p>' + (yearly && saved ? '<span class="chip">−' + eur0(saved) + ' / an</span>' : "") + '</div>' +
+      '<div class="sum-big">' + eur0(q.totals.monthlyEquivalentHt) + ' <small>HT/mois</small></div>' +
+      '<p class="sum-note">' + (yearly ? "Soit " + eur(q.totals.firstInvoiceHt) + " HT à la souscription (" + eur(q.totals.firstInvoiceTtc, true) + " TTC)" : "Premier paiement " + eur(q.totals.firstInvoiceHt) + " HT (" + eur(q.totals.firstInvoiceTtc, true) + " TTC)") + '</p>' +
+      '<ul class="sum-lines">' + q.lines.map(function (l) {
+        var f = l.frequency === "yearly" ? "/an" : l.frequency === "monthly" ? "/mois" : "";
+        return '<li><span>' + esc(l.label.replace("Comptabilité Pack ", "Compta ").replace(/ — .*$/, "")) + '</span><span>' + eur(l.firstInvoiceHt) + f + '</span></li>';
+      }).join("") + '</ul>' + proofs();
+    $("mprice").innerHTML = '<b>' + eur0(q.totals.monthlyEquivalentHt) + ' HT/mois</b><span>' + (yearly ? "facturé " + eur(q.totals.firstInvoiceHt) + " HT/an" : "sans engagement annuel") + '</span>';
+  }
+  function proofs() {
+    return '<ul class="sum-proofs"><li>✓ Bilan et liasse fiscale inclus</li><li>✓ Relevés LP Pro synchronisés avec votre compta</li><li>✓ Paiement sécurisé</li></ul>';
+  }
+
+  /* ───────── démarrage ───────── */
+  api.pricing().then(function (g) {
+    grid = g;
+    var saved = store.get();
+    var paidReturn = /[?&]paye=1/.test(location.search);
+    if (saved && saved.current && (paidReturn || ["offer", "contact", "pay"].indexOf(saved.current) > -1)) {
+      S = saved.S; history = saved.history || []; current = null;
+      go(saved.current, false);
+      refreshQuote();
+    } else {
+      go("intro", false);
+    }
+    renderSummary();
+  }).catch(function (e) { $("stage").innerHTML = '<h2>Le service est momentanément indisponible.</h2><p class="err">' + esc(e.message) + '</p>'; });
+})();
+</script>
+</body>
+</html>

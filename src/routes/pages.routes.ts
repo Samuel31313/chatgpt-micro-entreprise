@@ -142,6 +142,11 @@ router.get("/offre/:slug/payer/:site", async (req: Request, res: Response) => {
   );
 });
 
+/** GET /comptabilite — funnel de souscription compta / compte pro (web et mobile). */
+router.get("/comptabilite", (_req: Request, res: Response) => {
+  res.sendFile("souscription.html", { root: path.join(__dirname, "../../public") });
+});
+
 /** GET /sales — outil de création de custom checkout (la clé sales est demandée dans la page). */
 router.get("/sales", (_req: Request, res: Response) => {
   res.sendFile("sales.html", { root: path.join(__dirname, "../../public") });

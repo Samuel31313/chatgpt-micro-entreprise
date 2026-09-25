@@ -256,13 +256,20 @@ Changez `INPI_ENV=production` dans votre `.env`. Utilisez d'abord `INPI_ENV=demo
 
 ## Souscription comptabilité & compte pro (sociétés existantes)
 
-### Parcours GPT (Option 4)
+### Funnel web (`/comptabilite`)
 
-1. `qualifyCompany` : la société existe-t-elle ? Sinon → redirection vers les parcours de création (Options 1/2/3 ou lien LegalPlace).
-2. Questions de qualification → `route` :
-   - `self_checkout` : devis au prix grille (`quote`) puis `generateAccountingBankCheckout` → **un lien Chargebee par abonnement** (compta sur `lp-so-compta`, compte pro sur le site LP Pro).
-   - `sales_meeting` : SCI, micro/EI/association, activité à vérifier, CA > 1 M€, > 10 salariés, bilan en retard, reprise avec salariés, client anglophone → lien Calendly pré-rempli.
-3. Chaque qualification avec email est enregistrée dans la table `Lead`.
+Page publique mobile-first (`public/souscription.html`), servie par l'API, sans dépendance front :
+
+1. Accueil → « Votre société est-elle immatriculée ? »
+   - **Pas encore** → choix de la forme → lien vers la création LegalPlace (création offerte avec la compta annuelle) ou RDV si le statut n'est pas choisi.
+   - **En cours** → RDV conseiller (offre création + compta + compte pro).
+2. Une question par écran (besoin, forme, activité → secteur tarifaire, CA, salariés, TVA, OSS, situation comptable, usage du compte pro). Le prix se met à jour en direct (panneau à droite sur desktop, barre en bas sur mobile).
+3. `POST /api/funnel/qualify` :
+   - offre en ligne → écran d'offre (annuel/mensuel, Essentiel/Elite, packs LP Pro avec recommandation) → coordonnées → `POST /api/funnel/checkout` → **un paiement Chargebee par abonnement** ;
+   - SCI, micro/EI/asso, activité à vérifier, CA > 1 M€, > 10 salariés, bilan en retard, reprise avec salariés, anglophone → écran RDV → `POST /api/funnel/meeting` (Calendly pré-rempli).
+4. Leads enregistrés dans la table `Lead` (souscription et RDV). La progression est gardée en `sessionStorage` : au retour du paiement Chargebee (`/comptabilite?paye=1`), le visiteur retrouve l'étape de paiement.
+
+Endpoints publics `/api/funnel/*` : pas d'authentification, limite de 60 requêtes/minute par IP. Aucune remise possible côté funnel.
 
 La grille (`src/data/pricing.ts`) reprend le référentiel Notion *« [Tarif] Offre tarifaire : référentiel ComptaPlace & LegalPlace »* et la FAQ LP Pro.
 
@@ -272,7 +279,7 @@ La grille (`src/data/pricing.ts`) reprend le référentiel Notion *« [Tarif] Of
 |---|---|---|
 | **API** (`CHARGEBEE_*_API_KEY` renseignée) | Recommandé | Prix sectoriels (override de prix : activer *Allow price override* sur le site) et remises (`discounts[]`) |
 | **URL** (pas de clé) | Par défaut | Uniquement les offres au prix catalogue Chargebee (secteur *Base*, sans remise) |
-| **Fallback** | Site ou item_price non configuré | Compte pro → `LPPRO_SIGNUP_URL` ; compta → pas de lien, le GPT propose le RDV |
+| **Fallback** | Site ou item_price non configuré | Compte pro → `LPPRO_SIGNUP_URL` ; compta → pas de lien, le funnel propose le RDV |
 
 ### Outil sales : custom checkout (`/sales`)
 
