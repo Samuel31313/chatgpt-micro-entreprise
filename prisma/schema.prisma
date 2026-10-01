@@ -58,3 +58,46 @@ model Document {
 
   createdAt DateTime @default(now())
 }
+
+// Agent (IA ou partenaire) relié à un compte LegalPlace
+model Agent {
+  id               String  @id @default(cuid())
+  name             String
+  legalplaceEmail  String // Email du compte LegalPlace auquel l'agent est rattaché
+  apiKeyHash       String  @unique // SHA-256 de la clé API (la clé en clair n'est jamais stockée)
+  apiKeyPrefix     String // Début de la clé, pour l'identifier dans les logs
+  active           Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders AgentOrder[]
+}
+
+// Demande de création de micro-entreprise par un agent (payée 5 €)
+model AgentOrder {
+  id      String @id @default(cuid())
+  agentId String
+  agent   Agent  @relation(fields: [agentId], references: [id])
+
+  // pending_payment | paid | creating | created | failed | expired
+  status String @default("pending_payment")
+
+  // Données du créateur (JSON sérialisé, SQLite n'a pas de type Json)
+  payload String
+
+  // Paiement
+  stripeSessionId String? @unique
+  amountCents     Int
+  paidAt          DateTime?
+
+  // LegalPlace
+  legalplaceUniqid String?
+  legalplaceUrl    String?
+  error            String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([agentId])
+}

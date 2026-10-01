@@ -62,6 +62,10 @@ npm start
 | `INPI_PASSWORD` | Mot de passe INPI | idem |
 | `ANTHROPIC_API_KEY` | Clé API Anthropic | console.anthropic.com → API Keys |
 | `APP_URL` | URL publique de votre serveur | Votre domaine HTTPS |
+| `ADMIN_API_KEY` | Clé admin pour gérer les agents (API Agents) | Générer vous-même |
+| `AGENT_PRICE_CENTS` | Prix d'une création par agent (défaut `500` = 5 €) | — |
+
+> API Agents (création de micro-entreprise par API à 5 €) : voir `AGENTS_API.md`.
 
 ### Déploiement recommandé : Railway
 

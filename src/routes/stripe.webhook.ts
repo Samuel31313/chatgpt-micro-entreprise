@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { StripeService } from "../services/stripe.service";
+import { markOrderPaid, fulfillOrder } from "../services/agent-order.service";
 
 const prisma = new PrismaClient();
 const stripeService = new StripeService();
@@ -28,6 +29,15 @@ router.post("/", async (req: Request, res: Response) => {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as any;
       const dossierId = session.metadata?.dossier_id;
+      const agentOrderId = session.metadata?.agent_order_id;
+
+      if (agentOrderId && session.payment_status === "paid") {
+        await markOrderPaid(agentOrderId);
+        // Don't hold the webhook response while LegalPlace answers
+        fulfillOrder(agentOrderId)
+          .then((order) => console.log(`Agent order ${agentOrderId} paid → ${order?.status}`))
+          .catch((err) => console.error(`Agent order ${agentOrderId} fulfillment error:`, err.message));
+      }
 
       if (dossierId) {
         await prisma.dossier.update({

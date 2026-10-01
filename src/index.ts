@@ -9,6 +9,9 @@ import inpiRoutes from "./routes/inpi.routes";
 import nafRoutes from "./routes/naf.routes";
 import sasuRoutes from "./routes/sasu.routes";
 import microEntrepriseRoutes from "./routes/micro-entreprise.routes";
+import agentRoutes from "./routes/agent.routes";
+import adminAgentsRoutes from "./routes/admin-agents.routes";
+import { authenticateAgent, authenticateAdmin } from "./middleware/agent-auth";
 import stripeWebhookRoutes from "./routes/stripe.webhook";
 
 const app = express();
@@ -55,6 +58,10 @@ app.use("/api/inpi", authenticateGPT, inpiRoutes);
 app.use("/api/naf", authenticateGPT, nafRoutes);
 app.use("/api/sasu", authenticateGPT, sasuRoutes);
 app.use("/api/micro-entreprise", authenticateGPT, microEntrepriseRoutes);
+
+// Agents reliés à un compte LegalPlace : création de micro-entreprise par API (5 €)
+app.use("/api/agent", authenticateAgent, agentRoutes);
+app.use("/api/admin/agents", authenticateAdmin, adminAgentsRoutes);
 
 // Payment success/cancel pages
 app.get("/payment-success", (_req, res) => {

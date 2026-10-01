@@ -27,5 +27,9 @@ export const config = {
 
   GPT_API_KEY: required("GPT_API_KEY"),
 
+  // API Agents (création de micro-entreprise par API, payante)
+  ADMIN_API_KEY: process.env.ADMIN_API_KEY || "",
+  AGENT_PRICE_CENTS: parseInt(process.env.AGENT_PRICE_CENTS || "500", 10),
+
   UPLOAD_DIR: process.env.UPLOAD_DIR || "./uploads",
 };
